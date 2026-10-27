@@ -69,68 +69,27 @@ meantime, the slot should render its own visibly-pending state until answered:
 
 ## 2. Grouped stack
 
-Built only from what the About master copy states directly (React, TypeScript, LLM-powered
-apps and agents, Python) and what actually appears in the seven case-study repos' own
-`package.json` files. Icon names are `react-icons/si` exports, verified against this repo's
-own installed `node_modules/react-icons/si/index.d.ts`. No icon is invented for anything
-without a real Simple Icons entry, `Zustand` has none there, so it ships label-only.
+Source of truth is `src/data/stack.ts`. Brand icons are `simple-icons` exports, each confirmed to
+exist in the installed package before it was imported. An item with no brand entry ships
+label-only. Groups follow the layout of portfolio-vartika.vercel.app.
 
-### Frontend
-
-| Item | Icon |
+| Group | Items |
 |---|---|
-| React | `SiReact` |
-| TypeScript | `SiTypescript` |
-| Next.js | `SiNextdotjs` |
-| Vite | `SiVite` |
-| Tailwind CSS | `SiTailwindcss` |
-| React Router | `SiReactrouter` |
-| Preact | `SiPreact` |
-| GSAP | `SiGreensock` |
-| D3.js | `SiD3Dotjs` |
-| Zustand | *(no icon, Simple Icons has none)* |
+| Languages | TypeScript, JavaScript, Python, Java, SQL, HTML5, CSS3 |
+| Frontend & UI | React, Next.js, Vite, Tailwind CSS, Framer Motion, GSAP, React Router, Preact, D3.js, Zustand |
+| Backend & Data | Node.js, FastAPI, Supabase, PostgreSQL, MongoDB, SQL, REST APIs |
+| AI / GenAI | Claude, GitHub Copilot, Gemini, Groq, RAG, LLM Integration, Prompt Engineering, Multi-Agent Systems, Vector Databases |
+| DevOps & Tooling | Git, GitHub, Docker, Vercel, Playwright |
+| Leadership | Project planning and delegation, Requirements and specs, Client communication, Technical documentation |
+| Standards | TOGAF 10 |
 
-### Backend
+Label-only (no brand icon): SQL, Zustand, Groq, Playwright, REST APIs, RAG, LLM Integration,
+Prompt Engineering, Multi-Agent Systems, Vector Databases, and every Leadership and Standards
+item, because a practice or a standard is not a product.
 
-| Item | Icon |
-|---|---|
-| Supabase | `SiSupabase` |
-| PostgreSQL | `SiPostgresql` |
-| Node.js | `SiNodedotjs` |
-
-### AI
-
-| Item | Icon |
-|---|---|
-| OpenAI API | `SiOpenai` |
-| Python | `SiPython` |
-
-*(About's own copy says "LLM-powered apps and agents"; that's a practice, not a single
-brand, so it isn't a separate tile, it's the reason the OpenAI and Python tiles are grouped
-under AI rather than Backend.)*
-
-### Leadership
-
-No brand icons, per ART-DIRECTION 7 and UX-SPEC §6 point 6, these aren't products.
-
-- Project planning and delegation
-- Requirements and specs (SRS documents, build plans)
-- Client communication
-- Technical documentation
-
-### Quality
-
-| Item | Icon |
-|---|---|
-| ESLint | `SiEslint` |
-| Playwright | `SiPlaywright` |
-| Accessibility audits (WCAG AA) | *(no icon, a practice)* |
-| Visual regression testing | *(no icon, a practice)* |
-
-`ASK:` Shaka, confirm you're comfortable with "Leadership" and "Quality" listing practices
-rather than products, that's deliberate (UX-SPEC forbids inventing a brand icon for a skill
-that has none), but say so if you'd rather cut either group down to fewer, stronger items.
-
+Icon notes: Java uses the `siOpenjdk` mark because `siJava` is not exported. Framer Motion uses
+`siFramer`. CSS3 uses `siCss`. Gemini uses `siGooglegemini`. The OpenAI API tile, the "LLM apps
+and agents" tile and the whole Quality group were removed.
 ---
 
 ## 3. Sticky note
@@ -225,40 +184,26 @@ Budget range: {budgetRange || "Not specified"}
 
 ## 6. My Approach.txt
 
-Notepad-style essay, plain running text, no cards. About 300 words, written as Shaka, in his
-voice, grounded in how he actually works (references, plan, act, audit, human checkpoints,
-mobile by default, images as the product, no filler). The build method itself is not named.
+Notepad-style essay, plain running text, no cards. About 231 words, written as Shaka in the first
+person. It says he mixes structured waterfall planning with agile iteration for prototypes, that
+his sites and systems are very product-centred, and that he uses TOGAF 10 in planning and build to
+map business processes or ideas to applications, data and technology. The human checkpoint,
+mobile-first design and images as the product sit in one paragraph. Source of truth is the
+PARAGRAPHS array in src/components/windows/Approach.tsx.
 
-> Before I write a line of code, I look. I pull real references, actual sites that solve a
-> piece of the problem well, and I name the specific thing worth taking from each one. Not a
-> vague feeling, a specific move: this exact spacing, this exact interaction, this exact way
-> of grouping information. If I can't point at it, I don't trust it.
+> Before I write a line of code, I look. I pull real references, sites that solve a piece of the problem well, and name the specific move worth taking from each. If I can't point at it, I don't trust it.
 >
-> Then I plan. A build gets broken into phases, each with its own job: the visual direction,
-> the structure of the pages, the actual components, the copy, the security pass, the check
-> that it works. I write the plan down before I touch code, because a plan I can point back
-> to is worth more than one I'm improvising as I go.
+> Then I plan. I mix structured waterfall planning, with requirements, scope and phases written down first, with agile iteration for prototypes, which get built in short rounds, shown early and changed fast. The plan sets the edges and the iteration fills them in.
 >
-> Only then do I build. And building isn't the last step, checking is. Every build gets
-> looked over before I call it done: security, whether it actually works the way it's
-> supposed to, and whether it matches the direction I set out to hit. I don't sign off on my
-> own work without looking at it the way a stranger would.
+> I use TOGAF 10 in both planning and build to map a business process or an idea to the applications, data and technology that have to carry it. It keeps me honest about what a system is actually for.
 >
-> There's a human checkpoint in that process too. Before something ships, someone who isn't
-> me looks at it and says yes or no. That's not bureaucracy, it's the difference between "I
-> think this is good" and "this is actually good."
+> My sites and systems are very product-centred. I work out what is really being sold, shown or run, and build outward from that: the bottle, the menu, the vendor, the rate board. The design serves the product, never the reverse.
 >
-> Mobile isn't an afterthought I get to after the desktop version looks nice. I design for a
-> small screen from the start, because most of the people who'll actually see a site are
-> holding one in their hand, not sitting at a desk.
->
-> And images are not decoration, they're the product. A site with the right words and the
-> wrong pictures still feels cheap. I source real images, generate the ones I can't source,
-> or say plainly what's still missing, never a stand-in dressed up as the real thing.
+> Three habits hold it together. Before anything ships, someone who isn't me looks at it and says yes or no. I design for the phone first, because most people will see the site on one. And images are the product, so I source real ones, generate what I can't source, or say plainly what is missing.
 >
 > No filler. If a sentence doesn't earn its place, it doesn't ship.
 
-(303 words.)
+(231 words.)
 
 ---
 

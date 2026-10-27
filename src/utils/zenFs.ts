@@ -8,15 +8,14 @@ export const defaultIconPositions: IconPositions = {
   hireMe: { gridColumnStart: 1, gridRowStart: 3 },
   approach: { gridColumnStart: 1, gridRowStart: 4 },
   terminal2: { gridColumnStart: 1, gridRowStart: 5 },
-  resume: { gridColumnStart: 1, gridRowStart: 6 },
-  deviceInfo: { gridColumnStart: 1, gridRowStart: 7 },
-  credits: { gridColumnStart: 1, gridRowStart: 8 },
+  deviceInfo: { gridColumnStart: 1, gridRowStart: 6 },
+  resume: { gridColumnStart: 1, gridRowStart: 7 },
   start: { gridColumnStart: 99, gridRowStart: 99 },
   caseStudy: { gridColumnStart: 99, gridRowStart: 99 },
   merlinChat: { gridColumnStart: 99, gridRowStart: 99 },
 }
 
-const ICON_POSITIONS_KEY = '/iconPositions.v6.json'
+const ICON_POSITIONS_KEY = '/iconPositions.v7.json'
 
 const MAX_GRID_INDEX = 20
 

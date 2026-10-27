@@ -1,7 +1,6 @@
 import '@/App.css'
 
 import Projects from '@components/windows/Projects'
-import Credits from '@components/windows/Credits'
 import About from '@components/windows/About'
 import HireMe from '@components/windows/HireMe'
 import Approach from '@components/windows/Approach'
@@ -14,18 +13,20 @@ import Icon from '@components/Icon'
 import LoadingScreen from '@components/screens/LoadingScreen'
 import Navbar from '@components/Navbar'
 import Wizard from '@components/wizard/Wizard'
-import Polaroids from '@components/desktop/Polaroids'
-import StickyNote from '@components/desktop/StickyNote'
-import OrbitBand from '@components/desktop/OrbitBand'
+import AsciiSky from '@components/desktop/AsciiSky'
+import DeskColumn from '@components/desktop/DeskColumn'
 
 import { useTheme } from '@contexts/ThemeContext'
 import { useAnimations } from '@contexts/AnimationsContext'
 import { useWindows, WindowKey } from '@contexts/WindowsContext'
 import { defaultIconPositions } from '@/utils/zenFs'
+import { profile } from '@/data/profile'
 
 import { motion } from 'framer-motion'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+
+const DESKTOP_MIN_WIDTH = 768
 
 const parsePx = (value: string, fallback: number): number => {
   const n = parseFloat(value)
@@ -38,14 +39,17 @@ const App = () => {
   const { desktopRevealed, revealTransition } = useAnimations()
 
   const { closeWindow } = useWindows()
-  const pdfUrl = '#'
 
   const [canvasHeight, setCanvasHeight] = useState<number | undefined>(undefined)
   const rafRef = useRef<number>()
 
   const recomputeCanvasHeight = useCallback(() => {
     if (typeof document === 'undefined') return
-    const roots = document.querySelectorAll<HTMLElement>('[data-window-root], .icons, .orbit-band')
+    if (window.innerWidth >= DESKTOP_MIN_WIDTH) {
+      setCanvasHeight(window.innerHeight)
+      return
+    }
+    const roots = document.querySelectorAll<HTMLElement>('[data-window-root], .icons, .desk-column')
     let maxBottomDoc = 0
     roots.forEach((el) => {
       const rect = el.getBoundingClientRect()
@@ -79,16 +83,14 @@ const App = () => {
     windows.approach.visibility,
     windows.caseStudy.visibility,
     windows.deviceInfo.visibility,
-    windows.credits.visibility,
     windows.start.visibility,
     windows.terminal2.visibility,
   ])
 
   useEffect(() => {
-    if (windows.resume.visibility) {
-      window.open(pdfUrl, '_blank')
-      closeWindow('resume')
-    }
+    if (!windows.resume.visibility) return
+    if (profile.resumeUrl) window.open(profile.resumeUrl, '_blank', 'noopener,noreferrer')
+    closeWindow('resume')
   }, [closeWindow, windows.resume.visibility])
 
   return (
@@ -101,6 +103,7 @@ const App = () => {
         style={canvasHeight ? { minHeight: canvasHeight } : undefined}
       >
         <div className="global-live-grain" aria-hidden="true" />
+        <AsciiSky />
 
         <LoadingScreen />
         <Navbar />
@@ -111,25 +114,22 @@ const App = () => {
         >
           {Object.entries(windows)
             .filter(([key]) => key !== 'start' && key !== 'caseStudy' && key !== 'merlinChat')
+            .filter(([key]) => key !== 'resume' || Boolean(profile.resumeUrl))
             .sort(([a], [b]) => (defaultIconPositions[a as WindowKey]?.gridRowStart ?? 99) - (defaultIconPositions[b as WindowKey]?.gridRowStart ?? 99))
-            .map(([key, window]) => (
-              <Icon key={key} window={window} />
+            .map(([key, win]) => (
+              <Icon key={key} window={win} />
             ))}
         </motion.ol>
 
         {windows.about.visibility && <About />}
 
-        <Polaroids />
-        <StickyNote />
-
-        <OrbitBand />
+        <DeskColumn />
 
         {windows.caseStudies.visibility && <Projects />}
         {windows.caseStudy.visibility && <CaseStudyViewer />}
         {windows.hireMe.visibility && <HireMe />}
         {windows.approach.visibility && <Approach />}
         {windows.deviceInfo.visibility && <DeviceInfo />}
-        {windows.credits.visibility && <Credits />}
         {windows.start.visibility && <Start />}
         {windows.terminal2.visibility && <Xterm />}
 

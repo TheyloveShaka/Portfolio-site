@@ -23,7 +23,7 @@ const STARTER: ChatMessage = {
   text: 'Hey, I\'m Merlin. Ask me about Shaka\'s work, his stack, or how to reach him.',
 }
 
-const SUGGESTIONS = ['Case Studies', 'Skills', 'Contact', 'Tell me a joke']
+const SUGGESTIONS = ['Projects', 'Skills', 'Contact', 'Tell me a joke']
 
 let idCounter = 0
 const nextId = () => `msg-${Date.now()}-${idCounter++}`

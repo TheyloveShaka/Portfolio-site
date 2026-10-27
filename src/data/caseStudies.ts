@@ -1,4 +1,14 @@
 
+export type ProjectKind = 'commercial' | 'commercial-concept' | 'redesign-concept' | 'concept-for-sale' | 'passion'
+
+export const projectKindLabel: Record<ProjectKind, string> = {
+  'commercial': 'Commercial',
+  'commercial-concept': 'Commercial concept',
+  'redesign-concept': 'Redesign concept',
+  'concept-for-sale': 'Concept · open for purchase',
+  'passion': 'Passion project',
+}
+
 export interface CaseStudyMetric {
   label: string
   value: string
@@ -15,7 +25,7 @@ export interface CaseStudy {
   id: string
   title: string
   client: string
-  isConcept: boolean
+  kind: ProjectKind
   eyebrow: string
   headline: string
   summary: string
@@ -33,15 +43,15 @@ export const caseStudies: CaseStudy[] = [
     id: 'the-venue-menu',
     title: 'The Venue Menu',
     client: 'The Venue Menu (Kaga Gardens)',
-    isConcept: false,
+    kind: 'commercial',
     eyebrow: 'Full-stack development · Wedding vendor discovery · Kampala, Uganda',
     headline: 'Uganda\'s wedding vendor discovery platform, built end to end',
     summary:
       'A searchable directory of Kampala wedding vendors and venues, curated with Kaga Gardens, that I built and still run.',
     metrics: [
       { label: 'Vendor categories', value: '13 categories', verified: true },
-      { label: 'Stack', value: 'React 19, Supabase', verified: true },
       { label: 'Admin', value: 'Vendor and waitlist dashboard', verified: true },
+      { label: 'Shortlist', value: 'Saved vendors shared over WhatsApp', verified: true },
     ],
     sections: [
       {
@@ -82,69 +92,121 @@ export const caseStudies: CaseStudy[] = [
     repo: 'https://github.com/TheyloveShaka/TheVenueMenu',
   },
   {
-    id: 'kamwe-forex',
-    title: 'Kamwe Forex',
-    client: 'Kamwe Forex Bureau',
-    isConcept: true,
-    eyebrow: 'Brand-adherence rebuild · Forex bureau · Kampala, Uganda',
-    headline: 'A live rate board for a Bank of Uganda licensed forex bureau',
+    id: 'etaxi',
+    title: 'eTaxi',
+    client: 'eTaxi (concept, not a live service)',
+    kind: 'passion',
+    eyebrow: 'Concept pitch site · Electric public transport · Kampala, Uganda',
+    headline: 'An electric 14-seater taxi that drives down the page as you scroll',
     summary:
-      'A redesign concept for kamweforex.com that puts real-time exchange rates first and never shows a live clock over stale numbers.',
+      'A one-page scroll story pitching electric public taxis for Kampala, with a rider app, a 44-page proposal and a 5-page executive summary behind it.',
     metrics: [
-      { label: 'Stack', value: 'Next.js 15, GSAP', verified: true },
-      { label: 'Currencies', value: '7 currencies quoted', verified: true },
-      { label: 'Motion', value: 'Two distinct scroll gestures', verified: true },
+      { label: 'Format', value: 'One-page scroll story', verified: true },
+      { label: 'Proposal', value: '44-page proposal, 5-page summary', verified: true },
+      { label: 'Research', value: '124 cited sources', verified: true },
     ],
     sections: [
       {
         id: 'problem',
         heading: 'Problem',
         body:
-          'The live site printed a running clock above exchange rates that were hardcoded from 2023, so a visitor read three-year-old numbers as today\'s. Foreign exchange, the bureau\'s core product, didn\'t appear in the main navigation at all.',
+          'Kampala\'s public taxis are the blue and white vans people flag down every day. The pitch for an electric 14-seater had to start from that familiar sight, not from a foreign gadget, and show a rider what changes for them.',
       },
       {
         id: 'constraints',
         heading: 'Constraints',
         body:
-          'Every string of copy had to stay exactly as the client wrote it, including source typos (\'Logogo\' for Lugogo, \'Todays Exchange Rates\' with no apostrophe). No database, no admin, the client sets rates manually today.',
+          'No eTaxis are running yet, so the page says so plainly, and the fares on the phone screens are examples. No invented statistics: the proposal\'s taxi count and van price stay unknown by design. Uganda drives on the left, so the van holds the screen-right lane as it heads down the page. The van artwork is generated, with the roof sign and roundel drawn in by script.',
       },
       {
         id: 'what-i-did',
         heading: 'What I did',
         body:
-          '- Rebuilt the rate board to pull live mid-market rates from a currency API, with a fallback source, labelling every number honestly as live, fallback, or stale.\n- Gave the bureau\'s own buy and sell spread its own config file, so the markup that funds the business is legible instead of hidden.\n- Designed two distinct motion gestures, EXCHANGE (a swap) and TRANSFER (a one-way trip), so Forex Exchange and Money Transfer feel like different actions, not two buttons doing the same thing.\n- Added a Foreign Exchange entry to the navigation; on the live site it existed nowhere a visitor could click to.',
+          '- Built the whole page as one scroll story: the van rolls in from the right on load, turns onto a vertical road, passes six stages, and arrives at a full-bleed photo.\n- Drove it with one sticky view, one scrubbed GSAP timeline and a camera-driven world layer, with no ScrollTrigger pins.\n- Wrote the proposal behind it: a 44-page full proposal and a 5-page executive summary with 124 sources, rendered to PDF from HTML and linked from a concept page.\n- Gave reduced-motion, Save-Data and no-JavaScript visitors a static stack of the same story instead of the animation.\n- Made the phone-app screens inert and labelled as images, so they never take keyboard focus.',
       },
       {
         id: 'outcome',
         heading: 'Outcome',
-        body: 'Outcome not yet measured. This is a redesign concept, not the bureau\'s live site.',
+        body:
+          'Outcome not yet measured. This is a concept pitch and no eTaxis are running. The site is live on GitHub Pages, and its Get updates buttons open the concept page that carries both PDFs.',
       },
       {
         id: 'what-i-took-from-it',
         heading: 'What I took from it',
         body:
-          'A live clock over a stale number is a small bug that costs real trust. Fixing what a number claims about itself mattered more than any animation on the page.',
+          'A pitch is more convincing when it says what it does not know yet. Leaving the taxi count and van price open, and marking fares as examples, kept every number on the page honest.',
       },
     ],
-    stack: ['Next.js', 'TypeScript', 'Tailwind CSS', 'GSAP', 'D3.js'],
-    video: '/case-studies/kamwe-forex/walkthrough.mp4',
-    poster: '/case-studies/kamwe-forex/poster.webp',
-    live: 'https://kamwe-forex.vercel.app',
-    repo: 'https://github.com/TheyloveShaka/kamwe-forex',
+    stack: ['TypeScript', 'Vite', 'GSAP', 'CSS', 'Python', 'Playwright'],
+    video: '/case-studies/etaxi/walkthrough.mp4',
+    poster: '/case-studies/etaxi/poster.webp',
+    live: 'https://theyloveshaka.github.io/etaxi/',
+    repo: 'https://github.com/TheyloveShaka/etaxi',
+  },
+  {
+    id: 'eden-of-kora',
+    title: 'Eden of Kora',
+    client: 'Eden of Kora (Aaron Ndikora)',
+    kind: 'commercial',
+    eyebrow: 'Website build · Florist · Kampala, Uganda',
+    headline: 'A Kampala florist site where the thought is the gift and the order goes over WhatsApp',
+    summary:
+      'A six-page site for Eden of Kora, a delivery-only florist in Kampala, with UGX prices, a video-first home page, a gallery and a corporate page.',
+    metrics: [
+      { label: 'Pages', value: '6 pages, no build step', verified: true },
+      { label: 'Ordering', value: 'WhatsApp, paid before delivery', verified: true },
+      { label: 'Hours', value: 'Open daily, 9am to 7pm', verified: true },
+    ],
+    sections: [
+      {
+        id: 'problem',
+        heading: 'Problem',
+        body:
+          'Eden of Kora started in 2025 and sells fresh bouquets, funeral and sympathy flowers, gift hampers, preserved flowers, subscriptions and office arrangements across Kampala, delivery only. It needed a site that sounds like its owner, who says flowers are not the gift, the thought of giving them is.',
+      },
+      {
+        id: 'constraints',
+        heading: 'Constraints',
+        body:
+          'The client\'s facts came first. Prices, numbers, contacts and his words come only from his brief. His unconfirmed "85+" figure is not shown, there are no reviews because none were supplied, and there is no walk-in shop because there is none. Ordering had to stay on WhatsApp, with payment before delivery by MTN MoMo, Airtel Money, bank transfer or card, and no cash on delivery. The look is soft pink and cream, modern and playful, with not too much wording.',
+      },
+      {
+        id: 'what-i-did',
+        heading: 'What I did',
+        body:
+          '- Built six pages in plain HTML, CSS and vanilla JavaScript with no build step: home, shop, about, contact, gallery and corporate, all on one set of design tokens.\n- Opened the home page on video, as he asked, with a horizontal filmstrip of recent arrangements and reduced-motion handling.\n- Wrote a cart that turns an order into a pre-filled WhatsApp message asking for what his orders need: sender and recipient names and phones, address, date and time, card message and special requests.\n- Re-encoded his supplied videos for the web and added a corporate page whose quote form opens WhatsApp.\n- Kept a launch sweep that blocks any stand-in product, so nothing ships with a placeholder price.',
+      },
+      {
+        id: 'outcome',
+        heading: 'Outcome',
+        body:
+          'Outcome not yet measured. The site is live as a preview, and launch on the client\'s own domain is still pending.',
+      },
+      {
+        id: 'what-i-took-from-it',
+        heading: 'What I took from it',
+        body:
+          'When the client\'s facts are the product, the job is mostly knowing what to leave out. Every number I could not confirm stayed off the page.',
+      },
+    ],
+    stack: ['HTML', 'CSS', 'JavaScript'],
+    video: '/case-studies/eden-of-kora/walkthrough.mp4',
+    poster: '/case-studies/eden-of-kora/poster.webp',
+    live: 'https://theyloveshaka.github.io/eden-of-kora/',
   },
   {
     id: 'uwa',
     title: 'Uganda Wildlife Authority',
     client: 'Uganda Wildlife Authority (speculative, unaffiliated)',
-    isConcept: true,
+    kind: 'redesign-concept',
     eyebrow: 'Speculative redesign · Conservation & tourism · Uganda\'s national parks',
     headline: 'Ten national parks, told as ten different landscapes instead of one grid',
     summary:
       'A speculative redesign of ugandawildlife.org\'s front page, not affiliated with, commissioned by, or endorsed by UWA.',
     metrics: [
       { label: 'Parks', value: '10 national parks', verified: true },
-      { label: 'Stack', value: 'Vite, React 19, GSAP', verified: true },
       { label: 'Image weight', value: 'Park photos optimised 4.09MB to 1.57MB', verified: true },
+      { label: 'Hero video', value: 'Gated by screen width, connection and reduced motion', verified: true },
     ],
     sections: [
       {
@@ -187,15 +249,14 @@ export const caseStudies: CaseStudy[] = [
     id: 'frozen-basket',
     title: 'Frozen Basket',
     client: 'Frozen Basket',
-    // ASK: confirm with Shaka whether Frozen Basket runs this rebuild live.
-    isConcept: true,
+    kind: 'concept-for-sale',
     eyebrow: 'Front-end rebuild · Dessert & ice cream retail · Kisementi, Kampala',
     headline: 'A candy-coloured menu of 178 flavours that still passes contrast checks',
     summary:
-      'A redesign concept for frozenbasketug.com built around the shop\'s own 43 menu groups and 178 flavours, not a generic ice cream template.',
+      'A new concept, open for purchase, for frozenbasketug.com, built around the shop\'s own 43 menu groups and 178 flavours, not a generic ice cream template.',
     metrics: [
       { label: 'Menu', value: '178 flavours, 43 groups', verified: true },
-      { label: 'Stack', value: 'Next.js 15, GSAP', verified: true },
+      { label: 'Palette', value: '10-colour token system, 58 tinted flavours', verified: true },
       { label: 'Layout shift', value: '0.000 CLS on both routes', verified: true },
     ],
     sections: [
@@ -221,7 +282,7 @@ export const caseStudies: CaseStudy[] = [
         id: 'outcome',
         heading: 'Outcome',
         body:
-          'Outcome not yet measured. This is a redesign concept; confirm with Shaka whether it has since gone live for the client.',
+          'Outcome not yet measured. This is a concept, not the shop\'s current site.',
       },
       {
         id: 'what-i-took-from-it',
@@ -239,15 +300,15 @@ export const caseStudies: CaseStudy[] = [
     id: 'premium-liquor',
     title: 'Premium Liquor',
     client: 'Premium Liquor',
-    isConcept: true,
-    eyebrow: 'Redesign concept · Wine & spirits retail · Lugogo, Kampala',
+    kind: 'concept-for-sale',
+    eyebrow: 'Concept · Wine & spirits retail · Lugogo, Kampala',
     headline: 'A bottle carousel that re-themes the whole page to whatever you\'re looking at',
     summary:
-      'A redesign concept for thepremiumliquor.com where swiping through bottles changes the page\'s colours to match each one\'s own branding.',
+      'A concept open for purchase for thepremiumliquor.com, where swiping through bottles changes the page\'s colours to match each one\'s own branding.',
     metrics: [
-      { label: 'Stack', value: 'Preact, GSAP, Lenis', verified: true },
       { label: 'Ordering', value: 'WhatsApp checkout, no backend', verified: true },
       { label: 'Prices', value: 'Sourced from the brand\'s own live menu', verified: true },
+      { label: 'Images', value: 'Bottle PNGs compressed to two WebP sizes', verified: true },
     ],
     sections: [
       {
@@ -266,12 +327,12 @@ export const caseStudies: CaseStudy[] = [
         id: 'what-i-did',
         heading: 'What I did',
         body:
-          '- Built a side-to-side bottle carousel, swipe on phone, arrows or keys on desktop, where the whole page\'s theme shifts to match the bottle\'s own branding as you move.\n- Sampled the company\'s ink-and-copper wordmark to build the fixed theme the rest of the site, About, storefront, contact, sits on.\n- Wired every \'Order Now\' to a WhatsApp deep link pre-filled with the item, so an interested visitor reaches an actual person, not a dead cart.\n- Wrote an image pipeline that compresses every bottle and storefront photo into two sizes of WebP automatically.',
+          '- Built a side-to-side bottle carousel, swipe on phone, arrows or keys on desktop, where the whole page\'s theme shifts to match the bottle\'s own branding as you move.\n- Sampled the company\'s ink-and-copper wordmark to build the fixed theme the rest of the site, About, storefront, contact, sits on.\n- Wired every \'Order Now\' to a WhatsApp deep link pre-filled with the item, so an interested visitor reaches an actual person, not a dead cart.\n- Wrote an image pipeline that compresses bottle PNGs into two sizes of WebP and storefront photos into WebP automatically.',
       },
       {
         id: 'outcome',
         heading: 'Outcome',
-        body: 'Outcome not yet measured. This is a redesign concept, not the brand\'s current live site.',
+        body: 'Outcome not yet measured. This is a concept, not the brand\'s current live site.',
       },
       {
         id: 'what-i-took-from-it',
@@ -280,66 +341,67 @@ export const caseStudies: CaseStudy[] = [
           'Letting the page\'s own colour react to what you\'re looking at made browsing bottles feel physical instead of like scrolling a list.',
       },
     ],
-    stack: ['Preact', 'GSAP'],
+    stack: ['Vite', 'Preact', 'GSAP', 'Lenis'],
     video: '/case-studies/premium-liquor/walkthrough.mp4',
     poster: '/case-studies/premium-liquor/poster.webp',
     repo: 'https://github.com/TheyloveShaka/Premium-liquor',
   },
   {
-    id: 'nineteen-twenty-one-flowers',
-    title: 'Nineteen Twenty One Flowers',
-    client: 'Nineteen Twenty One Flowers',
-    isConcept: true,
-    eyebrow: 'Redesign concept · Florist & bouquet delivery · Kampala, Uganda',
-    headline: 'A florist site built around one animated bouquet and a WhatsApp cart',
+    id: 'bulungi-town-arcade',
+    title: 'Bulungi Town Arcade',
+    client: 'Bulungi Town (Café, Arcade, Soft Play)',
+    kind: 'commercial-concept',
+    eyebrow: 'Launch site concept · Family entertainment · Lugogo Mall, Kampala',
+    headline: 'A launch site for a Kampala arcade where the page itself has three playable games',
     summary:
-      'A redesign concept for Nineteen Twenty One Flowers with a soft-pink, hand-drawn feel and ordering that hands off straight to WhatsApp.',
+      'A v1 demo launch site for Bulungi Town with an 8-bit arcade built in: three mini-games on one cabinet and a leaderboard on each device.',
     metrics: [
-      { label: 'Pages', value: '4 pages, plain HTML, CSS, JS', verified: true },
-      { label: 'Ordering', value: 'WhatsApp cart, no backend', verified: true },
-      { label: 'Hero motion', value: '92-frame bouquet animation', verified: true },
+      { label: 'Games', value: '3 mini-games in one cabinet', verified: true },
+      { label: 'Leaderboard', value: 'Top 50 scores kept per game, per device', verified: true },
+      { label: 'Game assets', value: 'All sprites in code, all sounds synthesised', verified: true },
     ],
     sections: [
       {
         id: 'problem',
         heading: 'Problem',
         body:
-          'A florist selling a visually delicate product needed a site that felt handmade and warm, not another framework-default e-commerce template.',
+          'A café, arcade and soft play venue at Lugogo Mall sells play, and a generic venue template cannot show that. The launch site needed to feel like the place itself and give a visitor something to do before they book.',
       },
       {
         id: 'constraints',
         heading: 'Constraints',
         body:
-          'No build step, plain HTML, CSS, and vanilla JS across four pages, with a strict rule that each page\'s own agent could only touch its own files. No backend or payment processor, checkout hands off to WhatsApp.',
+          'Brand colours come from the official logo: royal blue, sky cyan and sun yellow. The site is one page with no build step, bookings go to WhatsApp, and every editable detail lives in one data file. Prices, testimonials and the WhatsApp number are demo values, and the social handles are unconfirmed guesses, until the client supplies the real ones.',
       },
       {
         id: 'what-i-did',
         heading: 'What I did',
         body:
-          '- Built a shared design system, tokens, a floating pill nav, a cart drawer, from scratch in plain CSS, so four static pages read as one product.\n- Embedded a 92-frame SMIL bouquet animation directly as an image, so the hero\'s signature motion needs no JavaScript to run.\n- Designed the cart drawer to build a pre-filled WhatsApp order message from whatever\'s inside it, with pay-on-delivery stated plainly.\n- Added scroll-in reveals across every section, with a full \'prefers-reduced-motion\' fallback that shows all content immediately.',
+          '- Built a playable cabinet into the page with three games: Bulungi Blast, a token catcher with a choice of two characters, Pixel Bowling over five racks, and Mini Golf over three holes, the last with a moving wall.\n- Drew every sprite as an in-code pixel map and synthesised every sound, so the games add no asset files.\n- Added a per-device leaderboard stored in the browser, a reward prompt when a score passes a threshold, and a WhatsApp link to share the score.\n- Masked the hero media with an irregular organic shape outlined in cyan, and made every photo and video slot fill itself when a correctly named file is dropped into the assets folder.\n- Put prices, party packages, weekly deals, hours and the reward offer in one file, so the client can edit them without touching the code.',
       },
       {
         id: 'outcome',
         heading: 'Outcome',
-        body: 'Outcome not yet measured. This is a redesign concept, not the brand\'s current live site.',
+        body:
+          'Outcome not yet measured. This is a v1 demo. Real promo footage and real prices are still to come, and the leaderboard stays per device until a small backend is added.',
       },
       {
         id: 'what-i-took-from-it',
         heading: 'What I took from it',
         body:
-          'A site doesn\'t need a framework to feel considered. Four plain HTML pages with one disciplined token file held together fine.',
+          'Putting a game inside the venue site lets a visitor try the place before they book. Keeping every sprite and sound in code meant the games needed no asset files.',
       },
     ],
     stack: ['HTML', 'CSS', 'JavaScript'],
-    video: '/case-studies/nineteen-twenty-one-flowers/walkthrough.mp4',
-    poster: '/case-studies/nineteen-twenty-one-flowers/poster.webp',
-    repo: 'https://github.com/TheyloveShaka/nineteen-twenty-one-flowers',
+    video: '/case-studies/bulungi-town-arcade/walkthrough.mp4',
+    poster: '/case-studies/bulungi-town-arcade/poster.webp',
+    repo: 'https://github.com/TheyloveShaka/Rep.Shaka',
   },
   {
     id: 'hotel-site',
-    title: 'Kaga Hotel',
-    client: 'Kaga Hotel (speculative, fictional concept)',
-    isConcept: true,
+    title: 'Kaga Kampala',
+    client: 'Kaga Kampala (speculative, fictional concept)',
+    kind: 'passion',
     eyebrow: 'Concept prototype · Immersive hotel experience · Kampala, Uganda',
     headline: 'A hotel site where scrolling is a walk through the building, not a menu',
     summary:
@@ -360,13 +422,13 @@ export const caseStudies: CaseStudy[] = [
         id: 'constraints',
         heading: 'Constraints',
         body:
-          'Kaga Hotel is a fictional property, invented for this concept, not a real, bookable business. Every shot had to stay in one lighting state, dusk into blue hour, and one building, an ivory-stone tower, with no other brand name in any image.',
+          'Kaga Kampala is a fictional property, invented for this concept, not a real, bookable business. Every shot had to stay in one lighting state, dusk into blue hour, and one building, an ivory-stone tower, with no other brand name in any image.',
       },
       {
         id: 'what-i-did',
         heading: 'What I did',
         body:
-          '- Designed the journey as four chapters, arrival, reception, an elevator, and the room or facility a guest chooses, so navigation is a physical act inside the building rather than a menu bar.\n- Specified every generated image and video clip frame by frame, locking the building, the lighting, and the camera angle so continuity holds across the whole sequence.\n- Built the concept as a clickable Figma prototype first, with the coded, scroll-driven build planned to follow once the direction is approved.\n- Set every sign in every generated image to read \'Kaga Hotel\' and nothing else, so no other brand leaks into the fiction.',
+          '- Designed the journey as four chapters, arrival, reception, an elevator, and the room or facility a guest chooses, so navigation is a physical act inside the building rather than a menu bar.\n- Specified every generated image and video clip frame by frame, locking the building, the lighting, and the camera angle so continuity holds across the whole sequence.\n- Built the concept as a clickable Figma prototype first, with the coded, scroll-driven build planned to follow once the direction is approved.\n- Set every sign in every generated image to read \'Kaga Kampala\' and nothing else, so no other brand leaks into the fiction.',
       },
       {
         id: 'outcome',
@@ -381,8 +443,59 @@ export const caseStudies: CaseStudy[] = [
           'Making navigation a physical act, an elevator instead of a menu, only works if you\'re willing to plan every single frame around it.',
       },
     ],
-    stack: ['Figma', 'AI-generated imagery'],
+    stack: ['Figma'],
     video: '/case-studies/hotel-site/walkthrough.mp4',
     poster: '/case-studies/hotel-site/poster.webp',
+  },
+  {
+    id: 'kamwe-forex',
+    title: 'Kamwe Forex',
+    client: 'Kamwe Forex Bureau',
+    kind: 'redesign-concept',
+    eyebrow: 'Brand-adherence rebuild · Forex bureau · Kampala, Uganda',
+    headline: 'A live rate board for a Bank of Uganda licensed forex bureau',
+    summary:
+      'A redesign concept for kamweforex.com that puts real-time exchange rates first and never shows a live clock over stale numbers.',
+    metrics: [
+      { label: 'Currencies', value: '7 currencies quoted', verified: true },
+      { label: 'Motion', value: 'Two distinct scroll gestures', verified: true },
+      { label: 'Rate labels', value: 'Every number marked live, fallback or stale', verified: true },
+    ],
+    sections: [
+      {
+        id: 'problem',
+        heading: 'Problem',
+        body:
+          'The live site printed a running clock above exchange rates that were hardcoded from 2023, so a visitor read three-year-old numbers as today\'s. Foreign exchange, the bureau\'s core product, didn\'t appear in the main navigation at all.',
+      },
+      {
+        id: 'constraints',
+        heading: 'Constraints',
+        body:
+          'Every string of copy had to stay exactly as the client wrote it, including source typos (\'Logogo\' for Lugogo, \'Todays Exchange Rates\' with no apostrophe). No database, no admin, the client sets rates manually today.',
+      },
+      {
+        id: 'what-i-did',
+        heading: 'What I did',
+        body:
+          '- Rebuilt the rate board to pull live mid-market rates from a currency API, with a fallback source, labelling every number honestly as live, fallback, or stale.\n- Gave the bureau\'s own buy and sell spread its own config file, so the markup that funds the business is legible instead of hidden.\n- Designed two distinct motion gestures, EXCHANGE (a swap) and TRANSFER (a one-way trip), so Forex Exchange and Money Transfer feel like different actions, not two buttons doing the same thing.\n- Added a Foreign Exchange entry to the navigation; on the live site it existed nowhere a visitor could click to.',
+      },
+      {
+        id: 'outcome',
+        heading: 'Outcome',
+        body: 'Outcome not yet measured. This is a redesign concept, not the bureau\'s live site.',
+      },
+      {
+        id: 'what-i-took-from-it',
+        heading: 'What I took from it',
+        body:
+          'A live clock over a stale number is a small bug that costs real trust. Fixing what a number claims about itself mattered more than any animation on the page.',
+      },
+    ],
+    stack: ['Next.js', 'TypeScript', 'Tailwind CSS', 'GSAP', 'D3.js'],
+    video: '/case-studies/kamwe-forex/walkthrough.mp4',
+    poster: '/case-studies/kamwe-forex/poster.webp',
+    live: 'https://kamwe-forex.vercel.app',
+    repo: 'https://github.com/TheyloveShaka/kamwe-forex',
   },
 ]

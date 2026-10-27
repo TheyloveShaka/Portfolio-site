@@ -1,11 +1,17 @@
-const LEAD = 'Redesign concept'
-const REST = ' · A direction I proposed for this brand, not their current live site.'
+import { projectKindLabel } from '@/data/caseStudies'
+import type { ProjectKind } from '@/data/caseStudies'
 
-function ConceptBadge() {
+const NEUTRAL_KINDS: ReadonlySet<ProjectKind> = new Set<ProjectKind>(['commercial', 'passion'])
+interface ConceptBadgeProps {
+  kind: ProjectKind
+}
+
+function ConceptBadge({ kind }: ConceptBadgeProps) {
+  const label = projectKindLabel[kind]
+  const neutral = NEUTRAL_KINDS.has(kind)
   return (
-    <span className="concept-badge">
-      <span className="concept-badge__lead">{LEAD}</span>
-      {REST}
+    <span className={neutral ? 'concept-badge concept-badge--neutral' : 'concept-badge'}>
+      {label}
     </span>
   )
 }

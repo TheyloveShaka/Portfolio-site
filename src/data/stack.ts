@@ -1,10 +1,21 @@
 import {
   siClaude,
+  siCss,
   siD3,
-  siEslint,
+  siDocker,
+  siFastapi,
+  siFramer,
+  siGit,
+  siGithub,
+  siGithubcopilot,
+  siGooglegemini,
   siGreensock,
+  siHtml5,
+  siJavascript,
+  siMongodb,
   siNextdotjs,
   siNodedotjs,
+  siOpenjdk,
   siPostgresql,
   siPreact,
   siPython,
@@ -13,6 +24,7 @@ import {
   siSupabase,
   siTailwindcss,
   siTypescript,
+  siVercel,
   siVite,
 } from 'simple-icons'
 import type { SimpleIcon } from 'simple-icons'
@@ -23,45 +35,78 @@ export interface StackItem {
 }
 
 export interface StackGroup {
-  id: 'frontend' | 'backend' | 'ai' | 'leadership' | 'quality'
+  id: 'languages' | 'frontend' | 'backend' | 'ai' | 'devops' | 'leadership' | 'standards'
   label: string
   items: StackItem[]
 }
 
 export const stack: StackGroup[] = [
   {
+    id: 'languages',
+    label: 'Languages',
+    items: [
+      { name: 'TypeScript', icon: siTypescript },
+      { name: 'JavaScript', icon: siJavascript },
+      { name: 'Python', icon: siPython },
+      { name: 'Java', icon: siOpenjdk },
+      { name: 'SQL' },
+      { name: 'HTML5', icon: siHtml5 },
+      { name: 'CSS3', icon: siCss },
+    ],
+  },
+  {
     id: 'frontend',
-    label: 'Frontend',
+    label: 'Frontend & UI',
     items: [
       { name: 'React', icon: siReact },
-      { name: 'TypeScript', icon: siTypescript },
       { name: 'Next.js', icon: siNextdotjs },
       { name: 'Vite', icon: siVite },
       { name: 'Tailwind CSS', icon: siTailwindcss },
+      { name: 'Framer Motion', icon: siFramer },
+      { name: 'GSAP', icon: siGreensock },
       { name: 'React Router', icon: siReactrouter },
       { name: 'Preact', icon: siPreact },
-      { name: 'GSAP', icon: siGreensock },
       { name: 'D3.js', icon: siD3 },
       { name: 'Zustand' },
     ],
   },
   {
     id: 'backend',
-    label: 'Backend',
+    label: 'Backend & Data',
     items: [
+      { name: 'Node.js', icon: siNodedotjs },
+      { name: 'FastAPI', icon: siFastapi },
       { name: 'Supabase', icon: siSupabase },
       { name: 'PostgreSQL', icon: siPostgresql },
-      { name: 'Node.js', icon: siNodedotjs },
+      { name: 'MongoDB', icon: siMongodb },
+      { name: 'SQL' },
+      { name: 'REST APIs' },
     ],
   },
   {
     id: 'ai',
-    label: 'AI',
+    label: 'AI / GenAI',
     items: [
       { name: 'Claude', icon: siClaude },
-      { name: 'OpenAI API' },
-      { name: 'Python', icon: siPython },
-      { name: 'LLM apps and agents' },
+      { name: 'GitHub Copilot', icon: siGithubcopilot },
+      { name: 'Gemini', icon: siGooglegemini },
+      { name: 'Groq' },
+      { name: 'RAG' },
+      { name: 'LLM Integration' },
+      { name: 'Prompt Engineering' },
+      { name: 'Multi-Agent Systems' },
+      { name: 'Vector Databases' },
+    ],
+  },
+  {
+    id: 'devops',
+    label: 'DevOps & Tooling',
+    items: [
+      { name: 'Git', icon: siGit },
+      { name: 'GitHub', icon: siGithub },
+      { name: 'Docker', icon: siDocker },
+      { name: 'Vercel', icon: siVercel },
+      { name: 'Playwright' },
     ],
   },
   {
@@ -75,14 +120,9 @@ export const stack: StackGroup[] = [
     ],
   },
   {
-    id: 'quality',
-    label: 'Quality',
-    items: [
-      { name: 'ESLint', icon: siEslint },
-      { name: 'Playwright' },
-      { name: 'Accessibility audits (WCAG AA)' },
-      { name: 'Visual regression testing' },
-    ],
+    id: 'standards',
+    label: 'Standards',
+    items: [{ name: 'TOGAF 10' }],
   },
 ]
 

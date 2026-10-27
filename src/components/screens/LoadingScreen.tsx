@@ -138,44 +138,40 @@ const LoadingScreen = () => {
 
   return (
     <div className={`boot-screen ${isHandingOff ? 'boot-screen--leaving' : ''}`} id="bootRoot">
-      <div className="pattern-background">
-        <div className="pattern-reveal">
-          <div className="boot-screen-text" id="boot-text">
-            {reducedMotion ? (
-              <>
-                Shaka's Portfolio
-                <br />
-                Hardware check OK
-                <br />
-                Loading
-                <br />
-                Ready
-                <br />
-                Loading complete...
-              </>
-            ) : (
-              <WindupChildren>
-                <Pace ms={8}>
-                  Shaka's Portfolio
-                  <br />
-                  <Pause ms={30} />
-                  Hardware check OK
-                  <br />
-                  <Pause ms={30} />
-                  Loading
-                  <br />
-                  <Pause ms={30} />
-                  Ready
-                  <br />
-                  <Pause ms={30} />
-                  Loading complete
-                  <Pace ms={90}>...</Pace>
-                  <Effect fn={handleDesktopHandoff} />
-                </Pace>
-              </WindupChildren>
-            )}
-          </div>
-        </div>
+      <div className="boot-screen-text" id="boot-text">
+        {reducedMotion ? (
+          <>
+            Shaka's Portfolio
+            <br />
+            Hardware check OK
+            <br />
+            Loading
+            <br />
+            Ready
+            <br />
+            Loading complete...
+          </>
+        ) : (
+          <WindupChildren>
+            <Pace ms={8}>
+              Shaka's Portfolio
+              <br />
+              <Pause ms={30} />
+              Hardware check OK
+              <br />
+              <Pause ms={30} />
+              Loading
+              <br />
+              <Pause ms={30} />
+              Ready
+              <br />
+              <Pause ms={30} />
+              Loading complete
+              <Pace ms={90}>...</Pace>
+              <Effect fn={handleDesktopHandoff} />
+            </Pace>
+          </WindupChildren>
+        )}
       </div>
       <button type="button" className="boot-skip" onClick={skipBoot}>
         Skip boot

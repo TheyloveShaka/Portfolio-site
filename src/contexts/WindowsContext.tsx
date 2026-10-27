@@ -17,7 +17,7 @@ import {
   WindowPositions,
 } from '@/utils/zenFs'
 
-export type WindowKey = 'terminal2' | 'about' | 'deviceInfo' | 'caseStudies' | 'hireMe' | 'approach' | 'caseStudy' | 'start' | 'credits' | 'resume' | 'merlinChat'
+export type WindowKey = 'terminal2' | 'about' | 'deviceInfo' | 'caseStudies' | 'hireMe' | 'approach' | 'caseStudy' | 'start' | 'resume' | 'merlinChat'
 
 interface WindowsContextType {
   windows: Record<WindowKey, WindowProps>;
@@ -29,7 +29,6 @@ interface WindowsContextType {
   hireMeWindow: WindowProps;
   approachWindow: WindowProps;
   caseStudyWindow: WindowProps;
-  creditsWindow: WindowProps;
   resumeWindow: WindowProps;
   openOrFocusWindow: (windowKey: WindowKey) => void;
   closeWindow: (windowKey: WindowKey) => void;
@@ -136,11 +135,10 @@ export const WindowsProvider = ({ children }: WindowsProviderProps) => {
     terminal2: createWindowConfig('terminal2', cmd, 'Terminal'),
     about: createWindowConfig('about', info, 'About'),
     deviceInfo: createWindowConfig('deviceInfo', mycomp, 'Device'),
-    caseStudies: createWindowConfig('caseStudies', mydocs, 'Case Studies'),
+    caseStudies: createWindowConfig('caseStudies', mydocs, 'Projects'),
     hireMe: createWindowConfig('hireMe', textDoc, 'Hire Me'),
     approach: createWindowConfig('approach', textDoc, 'My Approach.txt'),
-    caseStudy: createWindowConfig('caseStudy', mydocs, 'Case Study'),
-    credits: createWindowConfig('credits', mydocs, 'Credits'),
+    caseStudy: createWindowConfig('caseStudy', mydocs, 'Project'),
     resume: createWindowConfig('resume', textDoc, 'Resume'),
     merlinChat: createWindowConfig('merlinChat', merlinIcon, 'Ask Merlin'),
   }
@@ -187,7 +185,6 @@ export const WindowsProvider = ({ children }: WindowsProviderProps) => {
         hireMeWindow: windows.hireMe,
         approachWindow: windows.approach,
         caseStudyWindow: windows.caseStudy,
-        creditsWindow: windows.credits,
         openOrFocusWindow,
         closeWindow,
         updateIconPosition,

@@ -26,6 +26,7 @@
     "react-device-detect": "^2.2.2",
     "react-dom": "^18.3.1",
     "react-draggable": "^4.4.6",
+    "react-github-calendar": "^4.5.11",
     "react-icons": "^4.7.1",
     "react-responsive": "^10.0.0",
     "simple-icons": "^16.32.0",

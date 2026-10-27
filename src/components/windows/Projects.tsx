@@ -34,7 +34,7 @@ function CaseStudiesFolder() {
         </div>
         <div className="explorer-address-row">
           <span className="explorer-address-row__label">Address</span>
-          Portfolio / Case Studies
+          Portfolio / Projects
         </div>
         <div className="explorer-pane">
           <ul className="case-tile-grid">
@@ -49,7 +49,7 @@ function CaseStudiesFolder() {
                     className="case-tile"
                     role="button"
                     tabIndex={0}
-                    aria-label={`Open case study: ${study.title}`}
+                    aria-label={`Open project: ${study.title}`}
                     onClick={() => openTile(study.id)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
@@ -99,7 +99,7 @@ function CaseStudiesFolder() {
                     </div>
                     <div className="case-tile__filename">{study.id}-walkthrough.mp4</div>
                     <div className="case-tile__body">
-                      {study.isConcept && <ConceptBadge />}
+                      <ConceptBadge kind={study.kind} />
                       <p className="case-tile__eyebrow">{study.eyebrow}</p>
                       <h3 className="case-tile__headline">{study.headline}</h3>
                       <p className="case-tile__summary">{study.summary}</p>
@@ -111,7 +111,7 @@ function CaseStudiesFolder() {
             })}
           </ul>
         </div>
-        <div className="explorer-status-strip">{caseStudies.length} case studies</div>
+        <div className="explorer-status-strip">{caseStudies.length} projects</div>
       </div>
     </Window>
   )

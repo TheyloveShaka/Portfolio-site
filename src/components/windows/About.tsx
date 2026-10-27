@@ -1,9 +1,11 @@
-import about_png from '../../img/shaka-avatar.svg'
+import avatar from '@assets/photos/shaka-avatar.webp'
 import Window from './Window'
 import { useWindows } from '@contexts/WindowsContext'
 import CopyEmailAction from '@components/CopyEmailAction'
 import PenUnderline from '@components/PenUnderline'
 import StackIcon from '@components/StackIcon'
+import FitToWidth from '@components/FitToWidth'
+import SkillsOrbit from '@components/desktop/SkillsOrbit'
 import { CLOSING_QUOTE } from '@components/desktop/StickyNote'
 import { profile } from '@/data/profile'
 import { stack } from '@/data/stack'
@@ -53,7 +55,7 @@ function About() {
               className="btn-primary"
               onClick={() => openOrFocusWindow('caseStudies')}
             >
-              View case studies
+              View projects
             </button>
             <button
               type="button"
@@ -70,11 +72,11 @@ function About() {
         <div className="flex flex-col gap-4" style={{ maxWidth: 'var(--measure)' }}>
           <div className="flex items-start gap-4">
             <img
-              src={about_png}
-              alt="Illustrated portrait of Shaka"
+              src={avatar}
+              alt="Shaka Nathan K"
               width={80}
               height={80}
-              className="flex-shrink-0"
+              className="flex-shrink-0 about-avatar"
             />
             <p className="font-ui text-body text-ink-2 m-0">{MASTER_COPY_PARAGRAPHS[0]}</p>
           </div>
@@ -137,6 +139,10 @@ function About() {
             </div>
           ))}
         </div>
+
+        <FitToWidth>
+          <SkillsOrbit />
+        </FitToWidth>
       </div>
     </Window>
   )

@@ -94,10 +94,17 @@
 
   --wallpaper-fallback: #3F7D20;
 
-  --boot-bg: #0B0D10;
+  --boot-bg: #000000;
   --boot-ink: #C8D1D9;
   --boot-dim: #8A96A3;
   --boot-ok: var(--green-boot);
+  --ascii-sky-ink: var(--n-0);
+  --ascii-sky-opacity: 0.35;
+  --heat-0: var(--n-200);
+  --heat-1: color-mix(in srgb, var(--green-500) 40%, var(--n-0));
+  --heat-2: color-mix(in srgb, var(--green-500) 72%, var(--n-0));
+  --heat-3: var(--green-600);
+  --heat-4: var(--green-700);
 
   --focus-gap: #FAFBFE;
   --focus-ring: #0A246A;

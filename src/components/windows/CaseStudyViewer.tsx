@@ -104,9 +104,9 @@ function CaseStudyViewer() {
           <h2 ref={titleRef} tabIndex={-1} className="case-viewer__title">
             {study.title}
           </h2>
-          {study.isConcept && (
+          {study.kind && (
             <div className="case-viewer__badge-row">
-              <ConceptBadge />
+              <ConceptBadge kind={study.kind} />
             </div>
           )}
 

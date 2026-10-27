@@ -14,7 +14,7 @@ A Windows XP Luna desktop, rebuilt as a portfolio. Vite 5, React 18, TypeScript,
 
 ### Scroll shell
 
-`App.tsx` renders a fixed `.wallpaper-layer`, a fixed taskbar, and `#app`, a document-height canvas that scrolls. Its `min-height` is recomputed from the lowest `[data-window-root]`, `.icons` and `.orbit-band`, plus `--taskbar-h` and `--sp-6`, whenever a window opens or moves.
+`App.tsx` renders a fixed `.wallpaper-layer`, a fixed taskbar, and `#app`. At 768px and up the canvas is exactly the viewport tall and the desktop does not scroll. Under 768px its `min-height` is recomputed from the lowest `[data-window-root]`, `.icons` and `.desk-column`, plus `--taskbar-h` and `--sp-6`, whenever a window opens or moves.
 
 ### Windows
 
@@ -31,16 +31,19 @@ A Windows XP Luna desktop, rebuilt as a portfolio. Vite 5, React 18, TypeScript,
 
 ### Desktop decor
 
-- `components/desktop/Polaroids.tsx`: one placeholder photo, top-right. It develops on first view and straightens on hover.
+- `components/desktop/DeskColumn.tsx`: the right-hand column (Polaroids, StickyNote, GithubActivity). It scales down on short viewports so Merlin and the taskbar never cover it.
+- `components/desktop/Polaroids.tsx`: the portrait polaroid at 1.5x. It develops on first view and straightens on hover.
+- `components/desktop/GithubActivity.tsx`: the last 5 months of `react-github-calendar` in an XP card. It hides itself on error.
+- `components/desktop/AsciiSky.tsx`: a canvas of ASCII clouds over the wallpaper sky, capped at 24fps. The cursor parts them. It pauses offscreen and when the tab is hidden, and renders one static frame under reduced motion.
 - `components/desktop/StickyNote.tsx`: the availability note and the quote, in Caveat.
 - `components/PenUnderline.tsx`: the single pen stroke used wherever Shaka speaks for himself.
-- `components/desktop/OrbitBand.tsx` and `SkillsOrbit.tsx`: the skills orbit below the fold. It has 4 rings (18, 24, 30 and 38s), a pause control, and hover to pause. It renders static under 768px and under reduced motion.
+- `components/desktop/SkillsOrbit.tsx`: the skills orbit, at the bottom of About inside `FitToWidth`. It has 4 rings (18, 24, 30 and 38s), a pause control, and hover to pause. It renders static under 768px and under reduced motion.
 - Styles live in `styles/decor.css` and `styles/orbit.css`.
 
 ### Case studies
 
 - Data: `src/data/caseStudies.ts`, one entry per study. It holds the eyebrow, headline, summary, metrics, the five sections, the concept flag, links and media.
-- Folder: `components/windows/Projects.tsx` (the Case Studies window). Viewer: `components/windows/CaseStudyViewer.tsx`, opened through `openCaseStudy(id)`.
+- Folder: `components/windows/Projects.tsx` (the Projects window). Viewer: `components/windows/CaseStudyViewer.tsx`, opened through `openCaseStudy(id)`.
 - Media: `components/CaseStudyMedia.tsx`. It mounts a video only when the tile is in view, plays one tile at a time, and keeps the poster under reduced motion or Save-Data.
 - Files: `public/case-studies/<id>/walkthrough.mp4` and `poster.webp`.
 
@@ -100,10 +103,10 @@ All of them `require` Playwright from `../frozen-basket/node_modules`. That path
 
 These are waiting on Shaka. Each one is a launch blocker until it is resolved.
 
-1. Resume PDF. The Resume icon opens `#`.
+1. Resume PDF. Set `resumeUrl` in `src/data/profile.ts`. The Resume icon only renders once it is set.
 2. Email and booking link (`profile.email` and `profile.bookingUrl`). Hire Me's "Open email draft" stays disabled until the email is set.
 3. Real LinkedIn, Instagram and WhatsApp addresses. They currently point at the bare platform URLs.
-4. The portrait and its caption. Only the placeholder photo ships.
+4. Confirm the portrait crop.
 5. School and degree, years building, and roles held, for the About experience paragraph.
 6. Budget bands in UGX for Hire Me.
 7. The live URL per case study, and which ones are concepts. Frozen Basket's concept flag is unconfirmed.

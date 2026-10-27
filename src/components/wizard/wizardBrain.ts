@@ -148,9 +148,9 @@ export const INTENTS: WizardIntent[] = [
     id: 'case-studies',
     keywords: ['case studies', 'case study', 'projects', 'portfolio', 'show projects', 'show me projects', 'what has he built', 'his work', 'what did he build'],
     responses: [
-      'Opening his Case Studies folder now. Start with The Venue Menu, a wedding and venue discovery platform for Kampala, then work your way through the rest.',
+      'Opening his Projects folder now. Start with The Venue Menu, a wedding and venue discovery platform for Kampala, then work your way through the rest.',
     ],
-    speak: ['Opening Case Studies. Start with The Venue Menu.'],
+    speak: ['Opening Projects. Start with The Venue Menu.'],
     animation: 'Announce',
     action: 'caseStudies',
   },
@@ -194,17 +194,17 @@ export const INTENTS: WizardIntent[] = [
   {
     id: 'music',
     keywords: ['music', 'play music', 'song', 'playlist', 'play a song'],
-    responses: ['No jukebox on this desktop right now, but check out his Case Studies folder instead.'],
-    speak: ['No jukebox here right now, try the Case Studies folder instead.'],
+    responses: ['No jukebox on this desktop right now, but check out his Projects folder instead.'],
+    speak: ['No jukebox here right now, try the Projects folder instead.'],
     animation: 'Explain',
     action: 'caseStudies',
   },
 ]
 
 const FALLBACK_RESPONSES = [
-  'I\'m not sure I follow. Try asking about Shaka\'s case studies, his stack, or how to reach him.',
-  'Hmm, that one\'s outside my scripted knowledge. Ask me about his case studies, his stack, or say hi!',
-  'I only know a handful of tricks. Try: "what are his skills", "show me his case studies", or "how do I reach him".',
+  'I\'m not sure I follow. Try asking about Shaka\'s projects, his stack, or how to reach him.',
+  'Hmm, that one\'s outside my scripted knowledge. Ask me about his projects, his stack, or say hi!',
+  'I only know a handful of tricks. Try: "what are his skills", "show me his projects", or "how do I reach him".',
 ]
 
 export const getWizardReply = (rawMessage: string): WizardReply => {
