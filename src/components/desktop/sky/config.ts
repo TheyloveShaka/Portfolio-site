@@ -4,6 +4,7 @@ export type RGB = readonly [number, number, number]
 
 export interface CloudPalette {
   lit: RGB
+  shade: RGB
   haze: RGB
   ink: RGB
 }
@@ -26,6 +27,7 @@ export interface Quality {
   countScale: number
   maxDpr: number
   cellScale: number
+  idleMs: number
 }
 
 export interface CellSize {
@@ -37,7 +39,9 @@ export const BASE_SPRITE_WIDTH = 460
 export const SPRITE_ASPECT = 0.62
 export const REFERENCE_WIDTH = 1440
 
-export const HILL = { imageW: 1920, imageH: 1200, horizon: 0.58 } as const
+export const HILL = { imageW: 1920, imageH: 1200, horizon: 0.58, drop: 0.13 } as const
+
+export const REGION = { extra: 0.2, fadeFrom: 0.86, fadeTo: 1.15 } as const
 
 export const RAMP = ' .\'`:-=+*#%@'
 export const GLYPH_ADVANCE = 0.6
@@ -45,7 +49,14 @@ export const ALPHA_MIN = 30
 export const DENSITY_OVERSAMPLE = 2
 export const COMPACT_BELOW = 768
 export const CELL_DESKTOP: CellSize = { w: 8, h: 13 }
-export const CELL_COMPACT: CellSize = { w: 9, h: 14 }
+export const CELL_COMPACT: CellSize = { w: 11, h: 18 }
+
+export const ATLAS_BUCKETS = 4
+export const TONES = 4
+export const TONE_MIX: readonly number[] = [0, 0.3, 0.62, 0.92]
+export const LIGHT = { absorb: 0.075, recover: 0.4, edge: 26, tones: [0.8, 0.58, 0.4] } as const
+
+export const IDLE_MS = { desktop: 160, lowEnd: 220, compact: 250 } as const
 
 export const INTERACTION = {
   radius: 140,
@@ -96,8 +107,11 @@ export const viewScale = (width: number): number => clamp(width / REFERENCE_WIDT
 export const horizonY = (width: number, height: number): number => {
   const s = Math.max(width / HILL.imageW, height / HILL.imageH)
   const imageH = HILL.imageH * s
-  return height - imageH + imageH * HILL.horizon
+  return height - imageH + imageH * HILL.horizon + height * HILL.drop
 }
+
+export const regionBottom = (horizon: number, height: number): number =>
+  Math.min(height, horizon * (1 + REGION.extra))
 
 export const cellFor = (width: number, quality: Quality): CellSize => {
   const base = width < COMPACT_BELOW ? CELL_COMPACT : CELL_DESKTOP
@@ -105,13 +119,23 @@ export const cellFor = (width: number, quality: Quality): CellSize => {
 }
 
 export const resolveQuality = (requestedLayers?: number): Quality => {
+  if (window.innerWidth < COMPACT_BELOW) {
+    return {
+      layers: clamp(Math.round(requestedLayers ?? 3), 1, 3),
+      spritesPerLayer: 2,
+      countScale: 0.7,
+      maxDpr: 1.5,
+      cellScale: 1,
+      idleMs: IDLE_MS.compact,
+    }
+  }
   const nav = navigator as Navigator & { connection?: { saveData?: boolean } }
   const lowEnd = (nav.hardwareConcurrency ?? 8) <= 4 || nav.connection?.saveData === true
   const ceiling = lowEnd ? 3 : 4
   const layers = clamp(Math.round(requestedLayers ?? ceiling), 1, ceiling)
   return lowEnd
-    ? { layers, spritesPerLayer: 2, countScale: 0.6, maxDpr: 1.5, cellScale: 1.3 }
-    : { layers, spritesPerLayer: 3, countScale: 1, maxDpr: 2, cellScale: 1 }
+    ? { layers, spritesPerLayer: 2, countScale: 0.6, maxDpr: 1.5, cellScale: 1.3, idleMs: IDLE_MS.lowEnd }
+    : { layers, spritesPerLayer: 3, countScale: 1, maxDpr: 2, cellScale: 1, idleMs: IDLE_MS.desktop }
 }
 
 const parseHex = (value: string): RGB => {
@@ -127,6 +151,7 @@ export const resolvePalette = (isNight: boolean, override?: PaletteOverride): Cl
   const ink = isNight ? '--sky-night-top' : '--sky-top'
   return {
     lit: parseHex(override?.lit ?? styles.getPropertyValue(cloud + 'lit')),
+    shade: parseHex(override?.shade ?? styles.getPropertyValue(cloud + 'shade')),
     haze: parseHex(override?.haze ?? styles.getPropertyValue(cloud + 'haze')),
     ink: parseHex(override?.ink ?? styles.getPropertyValue(ink)),
   }

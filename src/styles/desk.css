@@ -87,7 +87,7 @@
 
 @media (max-width: 767px) {
   .desk-column {
-    top: 20px;
+    top: 520px;
     right: 12px;
     width: 170px;
     gap: var(--sp-3);

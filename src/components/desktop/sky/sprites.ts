@@ -1,4 +1,5 @@
 import { clamp, fbm, mulberry32, smoothstep, TAU } from './math'
+import type { SpriteDensity } from './density'
 
 interface Puff {
   x: number
@@ -67,14 +68,16 @@ const buildPuffs = (W: number, H: number, baseY: number, rng: () => number): Puf
   return puffs
 }
 
-export const renderDensity = (spec: DensitySpec): HTMLCanvasElement => {
+export const renderDensity = (spec: DensitySpec): SpriteDensity => {
   const cw = Math.max(8, Math.ceil(spec.w * spec.pxPerX))
   const ch = Math.max(6, Math.ceil(spec.h * spec.pxPerY))
+  const alpha = new Uint8Array(cw * ch)
+  const sprite: SpriteDensity = { w: cw, h: ch, alpha, depth: spec.depth }
   const canvas = document.createElement('canvas')
   canvas.width = cw
   canvas.height = ch
   const ctx = canvas.getContext('2d', { willReadFrequently: true })
-  if (!ctx) return canvas
+  if (!ctx) return sprite
 
   const rng = mulberry32(spec.seed)
   const baseY = spec.h * BASE_FRACTION
@@ -83,7 +86,7 @@ export const renderDensity = (spec: DensitySpec): HTMLCanvasElement => {
   ctx.setTransform(cw / spec.w, 0, 0, ch / spec.h, 0, 0)
   for (const p of puffs) {
     const body = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r)
-    const weight = 0.45 + 0.35 * rng()
+    const weight = 0.5 + 0.35 * rng()
     body.addColorStop(0, `rgba(255,255,255,${weight})`)
     body.addColorStop(0.55, `rgba(255,255,255,${weight * 0.82})`)
     body.addColorStop(1, 'rgba(255,255,255,0)')
@@ -94,29 +97,18 @@ export const renderDensity = (spec: DensitySpec): HTMLCanvasElement => {
   }
   ctx.setTransform(1, 0, 0, 1, 0, 0)
 
-  const img = ctx.getImageData(0, 0, cw, ch)
-  const px = img.data
+  const px = ctx.getImageData(0, 0, cw, ch).data
   for (let y = 0; y < ch; y++) {
     const v = y / ch
     const base = 1 - smoothstep(BASE_FRACTION - 0.03, BASE_FRACTION + 0.1, v)
     for (let x = 0; x < cw; x++) {
-      const i = (y * cw + x) * 4
-      const a = px[i + 3]
+      const a = px[(y * cw + x) * 4 + 3]
       if (a === 0) continue
       const grain = smoothstep(0.3, 0.72, fbm((x / cw) * 9, (y / ch) * 6, spec.seed, 3))
       const body = Math.pow(a / 255, 1.5) * 255
-      px[i] = spec.depth
-      px[i + 1] = 0
-      px[i + 2] = 0
-      px[i + 3] = clamp(body * (0.4 + 0.9 * grain) * base, 0, 255)
+      alpha[y * cw + x] = clamp(body * (0.45 + 0.95 * grain) * base, 0, 255)
     }
   }
-  ctx.putImageData(img, 0, 0)
-  return canvas
-}
-
-export const bakeDensity = async (canvas: HTMLCanvasElement): Promise<ImageBitmap> => {
-  const bitmap = await createImageBitmap(canvas)
   canvas.width = 0
-  return bitmap
+  return sprite
 }

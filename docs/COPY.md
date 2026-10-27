@@ -28,7 +28,7 @@ lead the projects that need someone to own the whole thing.
 **Copy-email action label:** Copy email → (on click) Copied → (after ~2s) reverts to Copy
 email. Same behaviour as Hire Me's copy-email control (see section 5).
 
-### Master copy (verbatim, unchanged, do not alter a word of this)
+### Master copy (verbatim; the last two paragraphs were rewritten by Shaka, do not alter a word without him)
 
 > Hi! I'm Shaka! Let me tell you a bit about me. It all began when I was a kid and I touched a computer to try to make it do something I wanted. And it worked. My life has never been the same since. From that moment on, I was hooked.
 >
@@ -36,11 +36,9 @@ email. Same behaviour as Hire Me's copy-email control (see section 5).
 >
 > That chase eventually turned into a career. I'm a Developer & AI Engineer based in Kampala, Uganda, and I still get the same rush today that I did back then.
 >
-> On the frontend, I build with React and TypeScript, on the AI side I'm deep into LLM-powered apps and agents, and underneath it all I lean on Python and data to make sense of things.
+> I have some knowledge of tools like React, TypeScript, Python, and LLM-powered apps and agents, but I'm always open to learning and to tackling challenges or projects in tech and tools I'm yet to learn.
 >
-> Lately that's meant building real products end-to-end - like The Venue Menu, Uganda's wedding & venue discovery platform.
->
-> Outside of code, I'm a comic-book fan, an astrophysics nerd who can't stop reading about black holes, a music lover, I'm always behind on some movie or anime, and you'll usually find me either gaming or watching sports when I'm not building something.
+> Outside of code, I'm a comic-book universe fan, a nerd who can't stop reading about string theory, black holes and multiversal physics, a 2010s music lover, I'm always behind on some sitcom, and you'll usually find me either gaming or watching Man United when I'm not building something.
 
 **Closing quote (locked, verbatim, exact placement per UX-SPEC §6.4, last line before the
 stack groups):**

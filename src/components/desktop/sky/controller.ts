@@ -1,6 +1,6 @@
-import { AsciiRenderer, closeSheet, depthByte, type DrawTiming } from './renderer'
+import { AsciiRenderer, depthByte, type DrawTiming } from './renderer'
 import { CloudWorld } from './world'
-import { bakeDensity, renderDensity } from './sprites'
+import { renderDensity } from './sprites'
 import {
   INTERACTION,
   LAYERS,
@@ -35,11 +35,12 @@ interface CloudSkyDebug {
 const debugHost = window as unknown as { __cloudSky?: CloudSkyDebug }
 
 const MAX_DT = 0.1
+const WORLD_MAX_DT = 0.5
 const REBUILD_BELOW = 0.72
 const REBUILD_ABOVE = 1.4
-const FRAME_MS = 1000 / 30
-const IDLE_FRAME_MS = 1000 / 15
+const FRAME_MS = 1000 / 26
 const FONT_WAIT_MS = 1500
+const GLYPH_WEIGHTS = ['400', '500']
 
 const whenDesktopReady = (run: () => void): (() => void) => {
   if (document.body.dataset.introDone === 'true') {
@@ -54,7 +55,9 @@ const whenDesktopReady = (run: () => void): (() => void) => {
 }
 
 const whenGlyphsReady = (family: string): Promise<void> => {
-  const load = document.fonts.load(`16px ${family}`).then(() => undefined)
+  const load = Promise.all(GLYPH_WEIGHTS.map((weight) => document.fonts.load(`${weight} 16px ${family}`))).then(
+    () => undefined,
+  )
   const timeout = new Promise<void>((resolve) => window.setTimeout(resolve, FONT_WAIT_MS))
   return Promise.race([load, timeout]).catch(() => undefined)
 }
@@ -80,6 +83,7 @@ export const startCloudSky = (canvas: HTMLCanvasElement, opts: CloudSkyOptions):
   let alive = true
   let reduced = reducedQuery.matches
   let raf = 0
+  let timer = 0
   let last = 0
   let buildToken = 0
   let spriteScale = 0
@@ -96,33 +100,57 @@ export const startCloudSky = (canvas: HTMLCanvasElement, opts: CloudSkyOptions):
     renderer.draw(world, 0, false)
   }
 
+  const queue = (): void => {
+    if (!alive || reduced || document.hidden) return
+    if (renderer.field.awake) {
+      raf = requestAnimationFrame(tick)
+      return
+    }
+    timer = window.setTimeout(() => {
+      timer = 0
+      raf = requestAnimationFrame(tick)
+    }, quality.idleMs)
+  }
+
   const tick = (now: number): void => {
-    raf = requestAnimationFrame(tick)
+    raf = 0
     const gap = now - last
-    if (gap < FRAME_MS) return
-    if (!renderer.field.awake && gap < IDLE_FRAME_MS) return
-    const dt = Math.min(gap / 1000, MAX_DT)
+    if (gap < FRAME_MS) {
+      raf = requestAnimationFrame(tick)
+      return
+    }
     last = now
+    const seconds = gap / 1000
     const t0 = import.meta.env.DEV ? performance.now() : 0
-    world.step(dt)
-    renderer.draw(world, dt, true)
+    world.step(Math.min(seconds, WORLD_MAX_DT))
+    renderer.draw(world, Math.min(seconds, MAX_DT), true)
     if (import.meta.env.DEV) {
       const spent = performance.now() - t0
       jsTotal += spent
       jsMax = Math.max(jsMax, spent)
       frames++
     }
+    queue()
   }
 
   const start = (): void => {
-    if (raf || reduced || document.hidden || !ready || !alive) return
+    if (raf || timer || reduced || document.hidden || !ready || !alive) return
     last = performance.now()
     raf = requestAnimationFrame(tick)
   }
 
   const stop = (): void => {
     if (raf) cancelAnimationFrame(raf)
+    if (timer) window.clearTimeout(timer)
     raf = 0
+    timer = 0
+  }
+
+  const wake = (): void => {
+    if (!timer) return
+    window.clearTimeout(timer)
+    timer = 0
+    raf = requestAnimationFrame(tick)
   }
 
   const build = async (): Promise<void> => {
@@ -132,31 +160,24 @@ export const startCloudSky = (canvas: HTMLCanvasElement, opts: CloudSkyOptions):
     if (!alive || token !== buildToken) return
     started = true
     const scale = world.scale
-    const baked = Promise.all(
-      layers.map((layer, li) => {
-        const size = spriteSize(layer, scale)
-        const depth = depthByte(li, layers.length)
-        return Promise.all(
-          Array.from({ length: quality.spritesPerLayer }, (_, slot) =>
-            bakeDensity(
-              renderDensity({
-                ...size,
-                seed: layerIds[li] * 1000 + slot * 37 + 11,
-                depth,
-                pxPerX: renderer.pxPerX,
-                pxPerY: renderer.pxPerY,
-              }),
-            ),
-          ),
-        )
-      }),
-    )
-    const [atlas, sheet] = await Promise.all([renderer.bakeAtlas(family, palette, layers), baked])
+    const atlas = await renderer.bakeAtlas(family, palette, layers)
     if (!alive || token !== buildToken) {
       atlas.close()
-      closeSheet(sheet)
       return
     }
+    const sheet = layers.map((layer, li) => {
+      const size = spriteSize(layer, scale)
+      const depth = depthByte(li, layers.length)
+      return Array.from({ length: quality.spritesPerLayer }, (_, slot) =>
+        renderDensity({
+          ...size,
+          seed: layerIds[li] * 1000 + slot * 37 + 11,
+          depth,
+          pxPerX: renderer.pxPerX,
+          pxPerY: renderer.pxPerY,
+        }),
+      )
+    })
     renderer.install(atlas, sheet, layers)
     spriteScale = scale
     ready = true
@@ -189,6 +210,7 @@ export const startCloudSky = (canvas: HTMLCanvasElement, opts: CloudSkyOptions):
   const aim = (x: number, y: number, t: number, strength: number): void => {
     if (reduced) return
     renderer.field.aim(x, y, t, strength)
+    wake()
   }
 
   const onPointerMove = (e: PointerEvent): void => {
@@ -200,6 +222,7 @@ export const startCloudSky = (canvas: HTMLCanvasElement, opts: CloudSkyOptions):
     if (reduced) return
     const touch = e.pointerType === 'touch'
     renderer.field.shock(e.clientX, e.clientY, touch ? INTERACTION.touch * opts.interaction : opts.interaction)
+    wake()
   }
 
   const onTouchMove = (e: TouchEvent): void => {

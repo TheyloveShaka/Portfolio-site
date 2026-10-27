@@ -110,18 +110,17 @@ html :focus-visible {
 }
 
 .global-live-grain {
+  --grain-tile: 192px;
   position: fixed;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
+  inset: calc(var(--grain-tile) * -1);
   background-image: url('./assets/textures/live-grain.png');
   background-repeat: repeat;
-  background-size: 192px 192px;
+  background-size: var(--grain-tile) var(--grain-tile);
   opacity: 0.8;
   pointer-events: none;
   z-index: 15;
-  animation: global-grain 0.5s steps(6) infinite;
+  will-change: transform;
+  animation: global-grain 0.5s steps(1, end) infinite;
 }
 
 @keyframes global-grain {
@@ -130,19 +129,25 @@ html :focus-visible {
     transform: translate(0, 0);
   }
   17% {
-    transform: translate(-5%, -10%);
+    transform: translate(-4%, -6%);
   }
   33% {
-    transform: translate(3%, -15%);
+    transform: translate(3%, -6%);
   }
   50% {
-    transform: translate(12%, 9%);
+    transform: translate(6%, 5%);
   }
   67% {
-    transform: translate(9%, 4%);
+    transform: translate(5%, 2%);
   }
   83% {
-    transform: translate(-1%, 7%);
+    transform: translate(-1%, 4%);
+  }
+}
+
+@media (max-width: 767px) {
+  .global-live-grain {
+    animation: none;
   }
 }
 

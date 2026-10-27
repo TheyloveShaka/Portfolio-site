@@ -40,6 +40,13 @@
   opacity: 1;
 }
 
+@media (max-width: 767px) {
+  .cloud-sky__canvas {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cloud-sky__canvas {
     transition: none;

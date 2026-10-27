@@ -1,9 +1,22 @@
 import type { CloudWorld } from './world'
 import { ParticleField } from './field'
 import { buildAtlas } from './atlas'
-import { ALPHA_MIN, DENSITY_OVERSAMPLE, INTERACTION as I, RAMP, type CellSize, type CloudPalette, type LayerSpec } from './config'
+import { DensityGrid, type DensitySheet } from './density'
+import { smoothstep } from './math'
+import {
+  ALPHA_MIN,
+  DENSITY_OVERSAMPLE,
+  INTERACTION as I,
+  LIGHT,
+  RAMP,
+  REGION,
+  regionBottom,
+  type CellSize,
+  type CloudPalette,
+  type LayerSpec,
+} from './config'
 
-export type DensitySheet = ImageBitmap[][]
+export type { DensitySheet }
 
 export interface DrawTiming {
   density: number
@@ -15,17 +28,16 @@ export interface DrawTiming {
 
 const DEBUG = import.meta.env.DEV
 const DIM_PER_HAZE = 0.35
-const GLYPH_GAMMA = 1.2
-const LEVELS = 16
+const GLYPH_GAMMA = 1
+const LEVELS = 6
 const BUCKET_SHIFT = 4
-const LEVEL_SHIFT = 6
+const TONE_SHIFT = 6
+const LEVEL_SHIFT = 8
+const EDGE_FLOOR = 0.22
+const EDGE_CURVE = 0.9
 
 export const depthByte = (bucket: number, count: number): number =>
   count <= 1 ? 255 : Math.round((bucket / (count - 1)) * 255)
-
-export const closeSheet = (sheet: DensitySheet): void => {
-  for (const layer of sheet) for (const sprite of layer) sprite.close()
-}
 
 const layerContext = (canvas: HTMLCanvasElement): CanvasRenderingContext2D => {
   const ctx = canvas.getContext('2d')
@@ -40,12 +52,13 @@ export class AsciiRenderer {
   private readonly ctx: CanvasRenderingContext2D
   private readonly overlay = document.createElement('canvas')
   private readonly overlayCtx: CanvasRenderingContext2D
-  private readonly gridCanvas = document.createElement('canvas')
-  private readonly gridCtx: CanvasRenderingContext2D
+  private readonly grid = new DensityGrid()
   private sheet: DensitySheet | null = null
   private atlas: ImageBitmap | null = null
   private shown = new Uint16Array(0)
   private flying = new Int32Array(0)
+  private tones = new Uint8Array(0)
+  private light = new Float32Array(0)
   private overlayDirty = false
   private cols = 0
   private rows = 0
@@ -59,9 +72,6 @@ export class AsciiRenderer {
   private readonly dim = new Float32Array(4)
 
   constructor(private readonly canvas: HTMLCanvasElement) {
-    const gridCtx = this.gridCanvas.getContext('2d', { willReadFrequently: true })
-    if (!gridCtx) throw new Error('2d canvas unavailable')
-    this.gridCtx = gridCtx
     this.ctx = layerContext(canvas)
     this.overlay.className = canvas.className
     this.overlay.setAttribute('aria-hidden', 'true')
@@ -71,7 +81,7 @@ export class AsciiRenderer {
     for (let a = 0; a < 256; a++) {
       const t = Math.max(0, (a - ALPHA_MIN) / (255 - ALPHA_MIN))
       this.glyphOf[a] = a < ALPHA_MIN ? 0 : 1 + Math.round(Math.pow(t, GLYPH_GAMMA) * last)
-      this.alphaOf[a] = 0.38 + 0.62 * (a / 255)
+      this.alphaOf[a] = EDGE_FLOOR + (1 - EDGE_FLOOR) * Math.pow(a / 255, EDGE_CURVE)
     }
   }
 
@@ -89,7 +99,7 @@ export class AsciiRenderer {
   }
 
   resize(width: number, height: number, dpr: number, horizon: number, cell: CellSize): boolean {
-    const { canvas, overlay, gridCanvas, gridCtx } = this
+    const { canvas, overlay } = this
     canvas.width = Math.round(width * dpr)
     canvas.height = Math.round(height * dpr)
     overlay.width = canvas.width
@@ -103,15 +113,23 @@ export class AsciiRenderer {
     this.cw = cw
     this.ch = ch
     this.cell = { w: cw / this.scale, h: ch / this.scale }
-    this.skyDev = Math.min(canvas.height, Math.ceil((horizon + this.cell.h) * this.scale))
+
+    const reach = Math.min(canvas.height, Math.ceil(regionBottom(horizon, height) * this.scale))
     this.cols = Math.ceil(canvas.width / cw)
-    this.rows = Math.ceil(this.skyDev / ch)
-    gridCanvas.width = this.cols
-    gridCanvas.height = this.rows
-    gridCtx.imageSmoothingEnabled = true
-    gridCtx.imageSmoothingQuality = 'medium'
+    this.rows = Math.max(1, Math.floor(reach / ch))
+    this.skyDev = this.rows * ch
+
+    const bottom = this.skyDev / this.scale
+    const fadeEnd = Math.min(horizon * REGION.fadeTo, bottom - 2 * this.cell.h)
+    const fadeStart = Math.min(horizon * REGION.fadeFrom, fadeEnd - 3 * this.cell.h)
+    const rowFade = new Float32Array(this.rows)
+    for (let j = 0; j < this.rows; j++) rowFade[j] = 1 - smoothstep(fadeStart, fadeEnd, (j + 0.5) * this.cell.h)
+    this.grid.resize(this.cols, this.rows, rowFade)
+
     this.shown = new Uint16Array(this.cols * this.rows)
     this.flying = new Int32Array(this.cols * this.rows)
+    this.tones = new Uint8Array(this.cols * this.rows)
+    this.light = new Float32Array(this.cols)
     this.overlayDirty = false
     this.field.resize(this.cols, this.rows, this.cell.w, this.cell.h, width)
     if (changed) this.dropAtlas()
@@ -127,7 +145,6 @@ export class AsciiRenderer {
 
   install(atlas: ImageBitmap, sheet: DensitySheet, layers: readonly LayerSpec[]): void {
     this.dropAtlas()
-    this.dropSheet()
     this.atlas = atlas
     this.sheet = sheet
     const count = layers.length
@@ -144,60 +161,58 @@ export class AsciiRenderer {
   }
 
   release(): void {
-    this.dropSheet()
+    this.sheet = null
     this.dropAtlas()
-    this.gridCanvas.width = 0
     this.overlay.remove()
   }
 
   draw(world: CloudWorld, dt: number, simulate: boolean): void {
-    const { sheet, atlas, gridCtx, canvas, ctx, cols, rows, cw, ch, scale, skyDev } = this
+    const { sheet, atlas, grid, canvas, ctx, cols, rows, cw, ch, scale, skyDev } = this
     if (!sheet || !atlas) return
     const t0 = DEBUG ? performance.now() : 0
-    const ix = 1 / this.cell.w
-    const iy = 1 / this.cell.h
 
-    gridCtx.globalAlpha = 1
-    gridCtx.clearRect(0, 0, cols, rows)
-    for (const cloud of world.clouds) {
-      const sprites = sheet[cloud.layer]
-      for (const item of cloud.items) {
-        if (item.dx > world.width || item.dx + item.dw < 0) continue
-        gridCtx.globalAlpha = item.alpha
-        gridCtx.drawImage(sprites[item.sprite], item.dx * ix, item.dy * iy, item.dw * ix, item.dh * iy)
-      }
-    }
-    const data = gridCtx.getImageData(0, 0, cols, rows).data
+    grid.compose(world.clouds, sheet, 1 / this.cell.w, 1 / this.cell.h)
+    const data = grid.data
     const t1 = DEBUG ? performance.now() : 0
     if (simulate) this.field.step(dt, data)
     const t2 = DEBUG ? performance.now() : 0
 
     const { ox, oy } = this.field
-    const { glyphOf, alphaOf, bucketOf, dim, shown, flying } = this
+    const { glyphOf, alphaOf, bucketOf, dim, shown, flying, tones, light } = this
+    const [lit0, lit1, lit2] = LIGHT.tones
+    light.fill(1)
     let drawn = 0
     let airborne = 0
     for (let j = 0; j < rows; j++) {
       const y = j * ch
+      const last = j + 1 >= rows
       for (let i = 0; i < cols; i++) {
         const k = j * cols + i
         const a = data[(k << 2) + 3]
         let key = 0
         if (a >= ALPHA_MIN) {
+          const exposure = light[i]
+          let tone = exposure > lit0 ? 0 : exposure > lit1 ? 1 : exposure > lit2 ? 2 : 3
+          if (tone < 3 && !last && data[((k + cols) << 2) + 3] + LIGHT.edge < a) tone++
+          light[i] = exposure * (1 - LIGHT.absorb * (a / 255))
+          tones[k] = tone
           if (ox[k] !== 0 || oy[k] !== 0) {
             flying[airborne++] = k
           } else {
             const bucket = bucketOf[data[k << 2]]
-            const level = Math.min(LEVELS - 1, (alphaOf[a] * dim[bucket] * LEVELS) | 0)
-            key = glyphOf[a] | (bucket << BUCKET_SHIFT) | (level << LEVEL_SHIFT)
+            const level = Math.max(1, Math.round(alphaOf[a] * dim[bucket] * (LEVELS - 1)))
+            key = glyphOf[a] | (bucket << BUCKET_SHIFT) | (tone << TONE_SHIFT) | (level << LEVEL_SHIFT)
           }
+        } else {
+          light[i] += (1 - light[i]) * LIGHT.recover
         }
         if (key === shown[k]) continue
         shown[k] = key
         const x = i * cw
         ctx.clearRect(x, y, cw, ch)
         if (key === 0) continue
-        ctx.globalAlpha = ((key >> LEVEL_SHIFT) + 0.5) / LEVELS
-        ctx.drawImage(atlas, (key & 15) * cw, ((key >> BUCKET_SHIFT) & 3) * ch, cw, ch, x, y, cw, ch)
+        ctx.globalAlpha = (key >> LEVEL_SHIFT) / (LEVELS - 1)
+        ctx.drawImage(atlas, (key & 15) * cw, ((key >> BUCKET_SHIFT) & 15) * ch, cw, ch, x, y, cw, ch)
         drawn++
       }
     }
@@ -214,13 +229,13 @@ export class AsciiRenderer {
         const dy = oy[k]
         const x = (k % cols) * cw + Math.round(dx * scale)
         const y = Math.floor(k / cols) * ch + Math.round(dy * scale)
-        if (x >= width || x + cw <= 0 || y >= skyDev || y + ch <= 0) continue
+        if (x >= width || x + cw <= 0 || y + ch > skyDev || y < 0) continue
         const a = data[(k << 2) + 3]
         const bucket = bucketOf[data[k << 2]]
         const t = Math.min(1, Math.sqrt(dx * dx + dy * dy) / I.flyRange)
         const glyph = Math.max(1, Math.round(glyphOf[a] * (1 - I.glyphFade * t)))
         ov.globalAlpha = alphaOf[a] * dim[bucket] * (1 - I.alphaFade * t)
-        ov.drawImage(atlas, glyph * cw, bucket * ch, cw, ch, x, y, cw, ch)
+        ov.drawImage(atlas, glyph * cw, (bucket | (tones[k] << 2)) * ch, cw, ch, x, y, cw, ch)
         drawn++
       }
       ov.globalAlpha = 1
@@ -234,11 +249,6 @@ export class AsciiRenderer {
       m.drawn += drawn
       m.frames++
     }
-  }
-
-  private dropSheet(): void {
-    if (this.sheet) closeSheet(this.sheet)
-    this.sheet = null
   }
 
   private dropAtlas(): void {

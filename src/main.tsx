@@ -4,6 +4,7 @@ import App from './App.tsx'
 import '@/styles/tokens.css'
 
 import '@fontsource/fira-mono/400.css'
+import '@fontsource/fira-mono/500.css'
 import '@fontsource/fira-sans/400.css'
 import '@fontsource/fira-sans/600.css'
 import '@fontsource/fira-sans/700.css'
