@@ -13,7 +13,7 @@ import Icon from '@components/Icon'
 import LoadingScreen from '@components/screens/LoadingScreen'
 import Navbar from '@components/Navbar'
 import Wizard from '@components/wizard/Wizard'
-import AsciiSky from '@components/desktop/AsciiSky'
+import CloudSky from '@components/desktop/sky/CloudSky'
 import DeskColumn from '@components/desktop/DeskColumn'
 
 import { useTheme } from '@contexts/ThemeContext'
@@ -95,6 +95,7 @@ const App = () => {
 
   return (
     <>
+      <CloudSky />
       <div className="wallpaper-layer" style={themeValues.app} aria-hidden="true" />
 
       <div
@@ -103,7 +104,6 @@ const App = () => {
         style={canvasHeight ? { minHeight: canvasHeight } : undefined}
       >
         <div className="global-live-grain" aria-hidden="true" />
-        <AsciiSky />
 
         <LoadingScreen />
         <Navbar />

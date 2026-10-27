@@ -15,7 +15,28 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 async function run(viewport) {
   const browser = await chromium.launch()
   const context = await browser.newContext({ viewport, deviceScaleFactor: 1 })
+  await context.addInitScript(() => {
+    window.__ml = { bg: 0, lastBg: null, balloons: [] }
+    setInterval(() => {
+      const c = document.querySelector('.clippy')
+      if (c) {
+        const bg = c.style.backgroundPosition || getComputedStyle(c).backgroundPosition
+        if (bg !== window.__ml.lastBg) {
+          window.__ml.lastBg = bg
+          window.__ml.bg++
+        }
+      }
+      const b = document.querySelector('.clippy-balloon')
+      if (b) {
+        const cs = getComputedStyle(b)
+        const shown = !b.hasAttribute('hidden') && cs.display !== 'none' && cs.visibility !== 'hidden' && b.textContent.trim().length > 0
+        const txt = b.textContent.trim()
+        if (shown && window.__ml.balloons[window.__ml.balloons.length - 1] !== txt) window.__ml.balloons.push(txt)
+      }
+    }, 60)
+  })
   const page = await context.newPage()
+  const ml = () => page.evaluate(() => ({ bg: window.__ml.bg, balloons: [...window.__ml.balloons] }))
 
   const consoleErrors = []
   const pageErrors = []
@@ -97,33 +118,28 @@ async function run(viewport) {
   await page.waitForTimeout(300)
   record('chat open after explicit open step', await chatVisible())
 
-  const balloonSamples = []
-  const clippyStyleSamples = new Set()
-  for (let elapsed = 0; elapsed < 30000; elapsed += 3000) {
-    await sleep(3000)
-    const sample = await page.evaluate(() => {
-      const b = document.querySelector('.clippy-balloon')
-      const shown = !!b && !b.hasAttribute('hidden') && getComputedStyle(b).display !== 'none' && b.textContent.trim().length > 0
-      return {
-        balloon: shown,
-        style: document.querySelector('.clippy')?.getAttribute('style') || '',
-      }
-    })
-    balloonSamples.push(sample.balloon)
-    clippyStyleSamples.add(sample.style)
-  }
-  const anyBalloon = balloonSamples.some(Boolean)
-  record(
-    '30s idle shows zero unprompted balloons',
-    !anyBalloon,
-    `samples=${JSON.stringify(balloonSamples)}`,
-  )
-  record(
-    '30s idle: no unprompted sprite animation (position/style held steady)',
-    clippyStyleSamples.size <= 1,
-    `distinct style snapshots=${clippyStyleSamples.size}`,
-  )
+  const beforeReply = await ml()
+  await page.locator('#window-merlinChat input').fill('what projects')
+  await page.keyboard.press('Enter')
+  await page.waitForTimeout(10000)
+  const afterReply = await ml()
+  record('a chat reply plays an animation and speaks a short line in the balloon', afterReply.bg > beforeReply.bg && afterReply.balloons.length > beforeReply.balloons.length, 'bgDelta=' + (afterReply.bg - beforeReply.bg) + ' newBalloons=' + JSON.stringify(afterReply.balloons.slice(beforeReply.balloons.length).slice(-1)))
 
+  await page.locator('#window-merlinChat .close-window').click()
+  await page.waitForTimeout(12000)
+  const idleStart = await ml()
+  await sleep(50000)
+  const idleEnd = await ml()
+  const idleBalloons = idleEnd.balloons.length - idleStart.balloons.length
+  const idleMoves = idleEnd.bg - idleStart.bg
+  record('50s idle with the chat closed: zero unprompted balloons (balloons only on interaction)', idleBalloons === 0, 'newBalloons=' + idleBalloons)
+  record('50s idle with the chat closed: a gentle idle animation plays (25 to 45s cadence)', idleMoves > 0, 'spriteFrameChanges=' + idleMoves)
+
+  const beforeGreet = await ml()
+  await clickMerlin()
+  await page.waitForTimeout(9000)
+  const afterGreet = await ml()
+  record('opening the chat plays an animation and speaks the greeting in his balloon', afterGreet.bg > beforeGreet.bg && afterGreet.balloons.slice(beforeGreet.balloons.length).some((x) => /Merlin/.test(x)), 'bgDelta=' + (afterGreet.bg - beforeGreet.bg) + ' balloons=' + JSON.stringify(afterGreet.balloons.slice(-1)))
   await page.locator('#window-merlinChat .close-window').click()
   await page.waitForTimeout(500)
   const closedOk = !(await chatVisible())

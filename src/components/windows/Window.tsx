@@ -1,7 +1,7 @@
 import { CgClose } from 'react-icons/cg'
 import { useTheme } from '@contexts/ThemeContext'
 import { WindowProps } from '@/types'
-import { ReactNode, useEffect, useRef, useState } from 'react'
+import { type CSSProperties, ReactNode, useEffect, useRef, useState } from 'react'
 import { DraggableCore } from 'react-draggable'
 import { useMediaQuery } from 'react-responsive'
 import { useWindows } from '@contexts/WindowsContext'
@@ -18,11 +18,12 @@ interface Window {
   window: WindowProps
   children: ReactNode;
   mobileMaxHeight?: string
+  innerScroll?: boolean
 }
 
 const DRAG_THRESHOLD_PX = 4
 
-function Window({ window: win, children, mobileMaxHeight }: Window) {
+function Window({ window: win, children, mobileMaxHeight, innerScroll }: Window) {
   const { openOrFocusWindow, closeWindow, windowPositions, setWindowPosition, isWindowFocused } = useWindows()
   const nodeRef = useRef<HTMLDivElement>(null)
   const { themeValues } = useTheme()
@@ -125,30 +126,41 @@ function Window({ window: win, children, mobileMaxHeight }: Window) {
   }
 
   const outerFieldStyle = { ...themeValues.field }
-  const scrollStyle = {
-    maxHeight: isMobile ? mobileMaxHeight : '70vh',
-    overflow: 'auto' as const,
-    overscrollBehaviorY: 'contain' as const,
-  }
+  const clampHeight = isMobile ? mobileMaxHeight : 'var(--window-max-h)'
+  const scrollStyle: CSSProperties = innerScroll
+    ? {
+        maxHeight: clampHeight ?? 'var(--window-max-h)',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+      }
+    : {
+        maxHeight: clampHeight,
+        overflow: 'auto',
+        overscrollBehaviorY: 'contain',
+      }
+  const innerStyle: CSSProperties | undefined = innerScroll
+    ? { display: 'flex', flexDirection: 'column', flex: '1 1 auto', minHeight: 0 }
+    : undefined
 
   const titleBarTheme = focused ? themeValues.window : themeValues.windowInactive
 
   const titleBar = (
     <div
-      className="handle flex flex-row items-center justify-between pl-4 cursor-move mb-[-1px]"
-      style={{ ...titleBarTheme, touchAction: 'none' }}
+      className="handle window-titlebar"
+      style={{ ...titleBarTheme, touchAction: isInFlowMobile ? 'manipulation' : 'none' }}
     >
-      <span id="title" style={{ color: titleBarTheme.color }}>
+      <span id="title" className="window-titlebar__text" style={{ color: titleBarTheme.color }}>
         {win.caption}
       </span>
       <button
-        style={themeValues.closeBtn}
-        className="bg-transparent close-window unstyledButton flex items-center justify-center"
+        type="button"
+        className="close-window unstyledButton"
         onClick={() => closeWindow(win.elementId)}
         aria-label="Close window"
       >
-        <span style={themeValues.closeBtnGlyph} className="close-window-glyph flex items-center justify-center">
-          <CgClose />
+        <span className="close-window-glyph">
+          <CgClose aria-hidden="true" />
         </span>
       </button>
     </div>
@@ -166,7 +178,7 @@ function Window({ window: win, children, mobileMaxHeight }: Window) {
         {titleBar}
         <div style={outerFieldStyle} className="grain">
           <div style={scrollStyle}>
-            <div>{children}</div>
+            <div style={innerStyle}>{children}</div>
           </div>
         </div>
       </div>
@@ -192,7 +204,7 @@ function Window({ window: win, children, mobileMaxHeight }: Window) {
           {titleBar}
           <div style={outerFieldStyle} className="grain">
             <div style={{ ...scrollStyle, maxHeight: mobileMaxHeight ?? scrollStyle.maxHeight }}>
-              <div>{children}</div>
+              <div style={innerStyle}>{children}</div>
             </div>
           </div>
         </div>
@@ -223,7 +235,7 @@ function Window({ window: win, children, mobileMaxHeight }: Window) {
         {titleBar}
         <div style={outerFieldStyle} className="grain">
           <div style={scrollStyle}>
-            <div>{children}</div>
+            <div style={innerStyle}>{children}</div>
           </div>
         </div>
       </div>

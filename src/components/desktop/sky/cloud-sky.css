@@ -1,0 +1,47 @@
+.cloud-sky {
+  --sky-stop-top: var(--sky-top);
+  --sky-stop-mid: var(--sky-mid);
+  --sky-stop-horizon: var(--sky-horizon);
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    var(--sky-stop-top) 0%,
+    var(--sky-stop-top) 16%,
+    var(--sky-stop-mid) 40%,
+    var(--sky-stop-horizon) 58%,
+    var(--sky-stop-horizon) 100%
+  );
+}
+
+.cloud-sky[data-night] {
+  --sky-stop-top: var(--sky-night-top);
+  --sky-stop-mid: var(--sky-night-mid);
+  --sky-stop-horizon: var(--sky-night-horizon);
+}
+
+.cloud-sky__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-develop) var(--ease-out);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, transparent 104px, #000 200px);
+  mask-image: linear-gradient(to right, transparent 0, transparent 104px, #000 200px);
+}
+
+.cloud-sky__canvas.is-ready {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud-sky__canvas {
+    transition: none;
+  }
+}

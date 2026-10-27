@@ -27,7 +27,7 @@ function CaseStudiesFolder() {
   const openTile = (id: string) => openCaseStudy(id)
 
   return (
-    <Window window={caseStudiesWindow}>
+    <Window window={caseStudiesWindow} innerScroll>
       <div className="explorer-content">
         <div className="explorer-menu-row" aria-hidden="true">
           File Edit View Favorites Tools Help

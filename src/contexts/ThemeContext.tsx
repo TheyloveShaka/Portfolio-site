@@ -1,9 +1,9 @@
 import { createContext, useContext, ReactNode, type CSSProperties } from 'react'
-import xpWallpaper from '@assets/xpCompress.jpg'
+import blissHill from '@assets/wallpaper/bliss-hill.webp'
 
 const xpTheme = {
   app: {
-    backgroundImage: `url(${xpWallpaper})`,
+    backgroundImage: `url(${blissHill})`,
     backgroundSize: 'cover',
   },
   button: {
@@ -43,23 +43,6 @@ const xpTheme = {
     borderRight: 'var(--frame-w) solid var(--xp-frame)',
     borderBottom: 'var(--frame-w) solid var(--xp-frame)',
     borderLeft: 'var(--frame-w) solid var(--xp-frame)',
-  },
-  closeBtn: {
-    width: 'var(--hit-min)',
-    height: 'var(--hit-min)',
-    margin: '0 var(--sp-1)',
-  },
-  closeBtnGlyph: {
-    color: 'var(--ink-on-color)',
-    backgroundColor: 'var(--xp-close)',
-    border: '1px solid var(--n-0)',
-    borderRadius: 'var(--radius-control)',
-    boxShadow: 'var(--shadow-btn-highlight)',
-    width: 'var(--title-ctl)',
-    height: 'var(--title-ctl)',
-    fontSize: 'var(--fs-meta)',
-    fontWeight: 'var(--fw-bold)',
-    transition: 'background-color var(--dur-micro) var(--ease-out)',
   },
   navbar: {
     background: 'var(--xp-taskbar)',

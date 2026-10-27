@@ -98,8 +98,20 @@
   --boot-ink: #C8D1D9;
   --boot-dim: #8A96A3;
   --boot-ok: var(--green-boot);
-  --ascii-sky-ink: var(--n-0);
-  --ascii-sky-opacity: 0.35;
+  --sky-top: #2A86FF;
+  --sky-mid: #68A9FF;
+  --sky-horizon: #91C1FF;
+  --sky-night-top: #050B24;
+  --sky-night-mid: #0F2150;
+  --sky-night-horizon: #264A8A;
+  --cloud-lit: #FFFFFF;
+  --cloud-mid: #EEF4FF;
+  --cloud-shade: #A8C2E4;
+  --cloud-haze: #96C4FF;
+  --cloud-night-lit: #B0C0E2;
+  --cloud-night-mid: #8094C0;
+  --cloud-night-shade: #3C4E7A;
+  --cloud-night-haze: #22346A;
   --heat-0: var(--n-200);
   --heat-1: color-mix(in srgb, var(--green-500) 40%, var(--n-0));
   --heat-2: color-mix(in srgb, var(--green-500) 72%, var(--n-0));
@@ -184,6 +196,9 @@
   --control-compact-h: 28px;
   --title-ctl: 21px;
   --hit-min: 44px;
+  --title-bar-h: 30px;
+  --window-max-h: 70vh;
+  --z-balloon: 450;
   --scrollbar-w: 14px;
 
   --radius-0: 0;

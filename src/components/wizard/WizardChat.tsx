@@ -4,6 +4,7 @@ import type { Agent } from 'clippyts'
 import Window from '@components/windows/Window'
 import { useWindows } from '@contexts/WindowsContext'
 import { getWizardReply } from './wizardBrain'
+import { performMerlin } from './merlinActions'
 import merlinIcon from '@assets/icons/xp/merlin.svg'
 import './wizard.css'
 
@@ -67,13 +68,7 @@ const WizardChat = ({ agentRef }: WizardChatProps) => {
       setMessages((prev) => [...prev, { id: nextId(), from: 'merlin', text: reply.text }])
 
       const agent = agentRef.current
-      if (agent) {
-        agent.stopCurrent()
-        if (agent.hasAnimation(reply.animation)) {
-          agent.play(reply.animation)
-        }
-        agent.speak(reply.speak, false)
-      }
+      if (agent) performMerlin(agent, reply.animation, reply.speak)
 
       if (reply.action) {
         openOrFocusWindow(reply.action)

@@ -4,6 +4,7 @@ import clippy, { Agent } from 'clippyts'
 import WizardChat from './WizardChat'
 import { useWindows } from '@contexts/WindowsContext'
 import { durDevelop, durMinimise, prefersReducedMotion, staggerIcon, staggerObject } from '@/styles/motion'
+import { greet, isMerlinBusy, playFriendly, playIdle } from './merlinActions'
 import './wizard.css'
 
 const INTRO_START_EVENT = 'portfolio:intro-start'
@@ -71,6 +72,8 @@ const merlinSparklePosition = () => ({
 type MerlinLifecycle = 'idle' | 'opening' | 'open' | 'closing'
 
 const CLICK_DISTANCE_THRESHOLD_PX = 4
+const IDLE_MIN_MS = 25000
+const IDLE_SPREAD_MS = 20000
 
 const clampSprite = (el: HTMLElement) => {
   const root = getComputedStyle(document.documentElement)
@@ -104,10 +107,37 @@ const Wizard = () => {
   const lifecycleTimeoutRef = useRef<number>()
   const skipFirstLifecycleSyncRef = useRef(true)
   const mouseDownPointRef = useRef<{ x: number; y: number } | null>(null)
+  const chatOpenRef = useRef(false)
+  const idleTimerRef = useRef<number>()
   const openOrFocusWindowRef = useRef(openOrFocusWindow)
   useEffect(() => {
     openOrFocusWindowRef.current = openOrFocusWindow
   }, [openOrFocusWindow])
+
+  useEffect(() => {
+    chatOpenRef.current = chatOpen
+    if (!chatOpen) return
+    const agent = agentRef.current
+    if (agent) greet(agent)
+  }, [chatOpen])
+
+  useEffect(() => {
+    if (!desktopReady) return undefined
+    const tick = () => {
+      const agent = agentRef.current
+      const paused = document.hidden || chatOpenRef.current || isMerlinBusy() || prefersReducedMotion()
+      if (agent && !paused) playIdle(agent)
+      schedule()
+    }
+    const schedule = () => {
+      idleTimerRef.current = window.setTimeout(tick, IDLE_MIN_MS + Math.random() * IDLE_SPREAD_MS)
+    }
+    schedule()
+    return () => {
+      if (idleTimerRef.current !== undefined) window.clearTimeout(idleTimerRef.current)
+      idleTimerRef.current = undefined
+    }
+  }, [desktopReady])
 
   useEffect(() => {
     if (skipFirstLifecycleSyncRef.current) {
@@ -133,6 +163,7 @@ const Wizard = () => {
 
     let mouseDownHandler: ((e: MouseEvent) => void) | undefined
     let clickHandler: ((e: MouseEvent) => void) | undefined
+    let dblClickGuard: ((e: MouseEvent) => void) | undefined
     let settle: (() => void) | undefined
     let el: HTMLElement | null = null
 
@@ -161,10 +192,15 @@ const Wizard = () => {
             if (!start) return
             const distance = Math.hypot(e.clientX - start.x, e.clientY - start.y)
             if (distance >= CLICK_DISTANCE_THRESHOLD_PX) return
+            if (chatOpenRef.current && agentRef.current) playFriendly(agentRef.current)
             openOrFocusWindowRef.current('merlinChat')
+          }
+          dblClickGuard = (e: MouseEvent) => {
+            if (e.target instanceof Element && e.target.closest('.clippy')) e.stopPropagation()
           }
           el.addEventListener('mousedown', mouseDownHandler)
           el.addEventListener('click', clickHandler)
+          document.addEventListener('dblclick', dblClickGuard, true)
 
           const sprite = el
           settle = () => window.requestAnimationFrame(() => clampSprite(sprite))
@@ -194,6 +230,7 @@ const Wizard = () => {
         if (mouseDownHandler) el.removeEventListener('mousedown', mouseDownHandler)
         if (clickHandler) el.removeEventListener('click', clickHandler)
       }
+      if (dblClickGuard) document.removeEventListener('dblclick', dblClickGuard, true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [desktopReady])

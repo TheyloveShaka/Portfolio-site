@@ -171,6 +171,71 @@
   }
 }
 
+.clippy-balloon {
+  --balloon-pad-y: var(--sp-2);
+  --balloon-border: 1px;
+  position: fixed;
+  z-index: var(--z-balloon);
+  box-sizing: border-box;
+  width: min(220px, calc(100vw - (var(--sp-4) * 2)));
+  padding: var(--balloon-pad-y) var(--sp-3);
+  border: var(--balloon-border) solid var(--n-400);
+  border-radius: var(--radius-tile);
+  background: var(--tooltip);
+  box-shadow: var(--shadow-object);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  pointer-events: none;
+}
+
+.clippy-balloon[hidden] {
+  display: none;
+}
+
+.clippy-balloon.clippy-top-left,
+.clippy-balloon.clippy-top-right {
+  margin-top: calc((var(--balloon-pad-y) + var(--balloon-border)) * 2);
+  transform: translateY(-100%);
+}
+
+.clippy-content {
+  overflow-wrap: break-word;
+}
+
+.clippy-tip {
+  position: absolute;
+  box-sizing: border-box;
+  width: var(--sp-3);
+  height: var(--sp-3);
+  background: var(--tooltip);
+  border: 0 solid var(--n-400);
+  transform: rotate(45deg);
+}
+
+.clippy-top-left .clippy-tip,
+.clippy-top-right .clippy-tip {
+  bottom: calc(var(--sp-3) / -2 - var(--balloon-border));
+  border-width: 0 var(--balloon-border) var(--balloon-border) 0;
+}
+
+.clippy-bottom-left .clippy-tip,
+.clippy-bottom-right .clippy-tip {
+  top: calc(var(--sp-3) / -2 - var(--balloon-border));
+  border-width: var(--balloon-border) 0 0 var(--balloon-border);
+}
+
+.clippy-top-left .clippy-tip,
+.clippy-bottom-left .clippy-tip {
+  right: var(--sp-6);
+}
+
+.clippy-top-right .clippy-tip,
+.clippy-bottom-right .clippy-tip {
+  left: var(--sp-6);
+}
+
 @media (max-width: 767px) {
   .clippy {
     transform: scale(0.75);

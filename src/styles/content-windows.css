@@ -1,7 +1,15 @@
 .explorer-content {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
+}
+
+.explorer-menu-row,
+.explorer-address-row,
+.explorer-status-strip {
+  flex: 0 0 auto;
 }
 
 @media (min-width: 768px) {
@@ -41,6 +49,12 @@
 }
 
 .explorer-pane {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--n-400) var(--n-100);
   background: var(--field);
   padding: var(--sp-4);
 }
