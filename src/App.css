@@ -106,6 +106,7 @@ html :focus-visible {
   background-position: center bottom;
   background-repeat: no-repeat;
   pointer-events: none;
+  transform: translateY(13vh);
 }
 
 .global-live-grain {
