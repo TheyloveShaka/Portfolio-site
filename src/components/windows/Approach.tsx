@@ -1,5 +1,6 @@
 import Window from './Window'
 import { useWindows } from '@contexts/WindowsContext'
+import SkillsOrbit from '@components/desktop/SkillsOrbit'
 
 const MENU_ITEMS = ['File', 'Edit', 'Format', 'View', 'Help']
 
@@ -28,6 +29,7 @@ function Approach() {
               {paragraph}
             </p>
           ))}
+          <SkillsOrbit className="orbit-panel--bare" />
         </div>
       </div>
     </Window>

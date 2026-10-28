@@ -124,3 +124,26 @@
     height: 160px;
   }
 }
+
+.orbit-panel--bare {
+  margin: var(--sp-4) 0 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.orbit-panel--bare .orbit-panel__title {
+  left: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.orbit-panel--bare .orbit-panel__body.grain {
+  background-color: transparent;
+}
+
+.orbit-panel--bare .orbit-panel__body.grain::before,
+.orbit-panel--bare .orbit-panel__body.grain::after {
+  display: none;
+}

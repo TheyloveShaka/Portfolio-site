@@ -3,7 +3,6 @@ import {
   siCss,
   siD3,
   siDocker,
-  siFastapi,
   siFramer,
   siGit,
   siGithub,
@@ -12,10 +11,8 @@ import {
   siGreensock,
   siHtml5,
   siJavascript,
-  siMongodb,
   siNextdotjs,
   siNodedotjs,
-  siOpenjdk,
   siPostgresql,
   siPreact,
   siPython,
@@ -25,12 +22,12 @@ import {
   siTailwindcss,
   siTypescript,
   siVercel,
+  siGooglecloud,
   siVite,
 } from 'simple-icons'
 import type { SimpleIcon } from 'simple-icons'
 import type { IconType } from 'react-icons'
 import {
-  TbApi,
   TbBolt,
   TbBuildingArch,
   TbClipboardText,
@@ -67,7 +64,6 @@ export const stack: StackGroup[] = [
       { name: 'TypeScript', icon: siTypescript },
       { name: 'JavaScript', icon: siJavascript },
       { name: 'Python', icon: siPython },
-      { name: 'Java', icon: siOpenjdk },
       { name: 'SQL', glyph: TbDatabase },
       { name: 'HTML5', icon: siHtml5 },
       { name: 'CSS3', icon: siCss },
@@ -94,12 +90,9 @@ export const stack: StackGroup[] = [
     label: 'Backend & Data',
     items: [
       { name: 'Node.js', icon: siNodedotjs },
-      { name: 'FastAPI', icon: siFastapi },
       { name: 'Supabase', icon: siSupabase },
       { name: 'PostgreSQL', icon: siPostgresql },
-      { name: 'MongoDB', icon: siMongodb },
       { name: 'SQL', glyph: TbDatabase },
-      { name: 'REST APIs', glyph: TbApi },
     ],
   },
   {
@@ -119,12 +112,13 @@ export const stack: StackGroup[] = [
   },
   {
     id: 'devops',
-    label: 'DevOps & Tooling',
+    label: 'DevOps & Cloud',
     items: [
       { name: 'Git', icon: siGit },
       { name: 'GitHub', icon: siGithub },
       { name: 'Docker', icon: siDocker },
       { name: 'Vercel', icon: siVercel },
+      { name: 'Google Cloud (GCP)', icon: siGooglecloud },
       { name: 'Playwright', glyph: TbMasksTheater },
     ],
   },

@@ -16,7 +16,7 @@ const MASTER_COPY_PARAGRAPHS = [
   'Every interaction with tech since has really just been me chasing that same magic - poking around in settings I didn\'t understand, breaking things on purpose to see how they worked, and slowly figuring out how to bend a machine to my will.',
   'That chase eventually turned into a career. I\'m a Developer & AI Engineer based in Kampala, Uganda, and I still get the same rush today that I did back then.',
   "I have some knowledge of tools like React, TypeScript, Python, and LLM-powered apps and agents, but I'm always open to learning and to tackling challenges or projects in tech and tools I'm yet to learn.",
-  "Outside of code, I'm a comic-book universe fan, a nerd who can't stop reading about string theory, black holes and multiversal physics, a 2010s music lover, I'm always behind on some sitcom, and you'll usually find me either gaming or watching Man United when I'm not building something.",
+  "Outside of code, I'm a comic-book universe fan, a nerd who can't stop reading about quantum physics and astrophysics, a 2010s music lover, I'm always behind on some sitcom, and you'll usually find me either on the game or watching Man United when I'm not building something.",
 ]
 
 function About() {
@@ -84,11 +84,10 @@ function About() {
             </p>
           ))}
 
-          <p className="font-ui text-small text-ink bg-luna-50 p-4 m-0" style={{ fontStyle: 'italic' }}>
-            Pending from Shaka: how long he&apos;s been building professionally, his path so far
-            (freelance, in-house, agency, his own product), any schooling or certifications worth
-            naming, and a concrete AI Engineer example beyond The Venue Menu. This space fills in
-            once he answers, not before.
+          <p className="font-ui text-body text-ink-2 m-0">
+            I&apos;m studying Information Systems and Technology at Makerere University, and I&apos;ve
+            been developing professionally for two years. I work freelance today, with the goal of
+            growing that into my own agency, and I&apos;m working towards my certifications.
           </p>
 
           <p className="font-hand m-0" style={{ fontSize: 'var(--fs-hand-note)', lineHeight: 'var(--lh-hand-note)', color: 'var(--pen)', fontWeight: 'var(--fw-medium)' }}>
