@@ -64,8 +64,15 @@ const SPARKLE_PARTICLES = Array.from({ length: 7 }, (_, i) => ({
   delay: (i % 3) * staggerIcon,
 }))
 
+const isNarrow = () => window.innerWidth < 768
+
+const merlinHome = () => ({
+  x: isNarrow() ? window.innerWidth / 2 - 64 : window.innerWidth - 150,
+  y: window.innerHeight - 170,
+})
+
 const merlinSparklePosition = () => ({
-  x: window.innerWidth - 100,
+  x: isNarrow() ? window.innerWidth / 2 : window.innerWidth - 100,
   y: window.innerHeight - 120,
 })
 
@@ -172,7 +179,7 @@ const Wizard = () => {
       successCb: (agent) => {
         agentRef.current = agent
         agent.show(true)
-        agent.moveTo(window.innerWidth - 150, window.innerHeight - 170, 0)
+        agent.moveTo(merlinHome().x, merlinHome().y, 0)
 
         setSparkle(merlinSparklePosition())
         sparkleTimeoutRef.current = window.setTimeout(() => setSparkle(null), durDevelop + staggerObject * 2)

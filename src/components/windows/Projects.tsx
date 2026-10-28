@@ -8,7 +8,7 @@ import { caseStudies } from '@/data/caseStudies'
 
 function CaseStudiesFolder() {
   const { caseStudiesWindow, openCaseStudy } = useWindows()
-  const [activeVideoId, setActiveVideoId] = useState<string | null>(null)
+  const [, setActiveVideoId] = useState<string | null>(null)
   const visibilityRef = useRef<Map<string, number>>(new Map())
 
   const reportVisibility = useCallback((id: string, ratio: number) => {
@@ -62,7 +62,7 @@ function CaseStudiesFolder() {
                       <CaseStudyMedia
                         study={study}
                         variant="tile"
-                        active={activeVideoId === study.id}
+                        active
                         onVisibilityChange={(ratio) => reportVisibility(study.id, ratio)}
                       />
                       {(study.live || study.repo) && (

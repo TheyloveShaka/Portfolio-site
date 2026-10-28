@@ -53,6 +53,10 @@ function CaseStudyMedia({ study, variant, active = true, onVisibilityChange }: C
           loop
           autoPlay
           playsInline
+          onLoadedMetadata={(e) => {
+            e.currentTarget.defaultPlaybackRate = 0.7
+            e.currentTarget.playbackRate = 0.7
+          }}
           onError={() => setVideoFailed(true)}
         />
       ) : (

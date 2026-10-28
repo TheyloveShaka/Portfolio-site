@@ -105,6 +105,7 @@ export const spriteSize = (layer: LayerSpec, scale: number): { w: number; h: num
 export const viewScale = (width: number): number => clamp(width / REFERENCE_WIDTH, 0.42, 1.2)
 
 export const horizonY = (width: number, height: number): number => {
+  if (width < 768) return height * 0.6 + 10
   const s = Math.max(width / HILL.imageW, height / HILL.imageH)
   const imageH = HILL.imageH * s
   return height - imageH + imageH * HILL.horizon + height * HILL.drop
