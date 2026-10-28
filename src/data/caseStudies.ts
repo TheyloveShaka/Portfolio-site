@@ -446,6 +446,7 @@ export const caseStudies: CaseStudy[] = [
     stack: ['Figma'],
     video: '/case-studies/hotel-site/walkthrough.mp4',
     poster: '/case-studies/hotel-site/poster.webp',
+    live: 'https://kaga-kampala-opal.vercel.app',
   },
   {
     id: 'kamwe-forex',

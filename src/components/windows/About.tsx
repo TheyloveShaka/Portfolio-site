@@ -90,6 +90,12 @@ function About() {
             growing that into my own agency, and I&apos;m working towards my certifications.
           </p>
 
+          <p className="font-ui text-body text-ink-2 m-0">
+            At Makerere I led Team Makerere 1 to an award in The Open Group&apos;s INITIATE Enterprise
+            Architecture Competition for Students 2026, with ConnectedCare 360, an enterprise
+            architecture built with TOGAF and ArchiMate.
+          </p>
+
           <p className="font-hand m-0" style={{ fontSize: 'var(--fs-hand-note)', lineHeight: 'var(--lh-hand-note)', color: 'var(--pen)', fontWeight: 'var(--fw-medium)' }}>
             {QUOTE_LEAD}
             <span style={{ position: 'relative', display: 'inline-block' }}>
