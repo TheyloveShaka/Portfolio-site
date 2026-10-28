@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import type { CSSProperties } from 'react'
-import { TbPlayerPause, TbPlayerPlay } from 'react-icons/tb'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import type { CSSProperties, RefObject } from 'react'
 import { brandedTools } from '@/data/stack'
 import '@/styles/orbit.css'
 
@@ -16,25 +15,17 @@ interface RingConfig {
 }
 
 const RING_CONFIG: RingConfig[] = [
-  { radius: 108, count: 8, duration: 18, direction: 'cw' },
-  { radius: 166, count: 10, duration: 24, direction: 'ccw' },
-  { radius: 224, count: 12, duration: 30, direction: 'cw' },
-  { radius: 282, count: 16, duration: 38, direction: 'ccw' },
+  { radius: 108, count: 10, duration: 18, direction: 'cw' },
+  { radius: 166, count: 14, duration: 24, direction: 'ccw' },
+  { radius: 224, count: 18, duration: 30, direction: 'cw' },
+  { radius: 282, count: 22, duration: 38, direction: 'ccw' },
 ]
 
-const CENTER = { x: 320, y: 316 }
+const MOBILE_RING_COUNT = 3
 const HEMISPHERE_SIZE = 128
 const CHIP_SIZE = 32
 const GLYPH_SIZE = 24
-
-const MOBILE_SCALE = 0.536
-const MOBILE_CHIP_SIZE = 20
-const MOBILE_GLYPH_SIZE = 12
-
-function chipAngle(index: number, count: number): number {
-  if (count <= 1) return 270
-  return 180 + (180 * index) / (count - 1)
-}
+const EDGE_PX = 4
 
 function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState(
@@ -62,56 +53,77 @@ function useIsMobile(): boolean {
   return mobile
 }
 
+function useFitScale(ref: RefObject<HTMLDivElement>, naturalWidth: number, naturalHeight: number): number {
+  const [scale, setScale] = useState(1)
+  useLayoutEffect(() => {
+    const node = ref.current
+    if (!node) return undefined
+    const measure = () => {
+      const width = node.clientWidth
+      const height = node.clientHeight
+      if (!width || !height) return
+      const next = Math.min(width / naturalWidth, height / naturalHeight)
+      setScale(prev => (Math.abs(prev - next) < 0.001 ? prev : next))
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [ref, naturalWidth, naturalHeight])
+  return scale
+}
+
 function SkillsOrbit({ className = '' }: SkillsOrbitProps) {
   const reducedMotion = usePrefersReducedMotion()
   const isMobile = useIsMobile()
-  const isStatic = reducedMotion || isMobile
 
   const bodyRef = useRef<HTMLDivElement | null>(null)
-  const [userPaused, setUserPaused] = useState(false)
-  const [offscreenOrHidden, setOffscreenOrHidden] = useState(false)
+  const [offscreen, setOffscreen] = useState(false)
+  const [tabHidden, setTabHidden] = useState(() => typeof document !== 'undefined' && document.hidden)
 
   useEffect(() => {
-    if (isStatic) return
+    if (reducedMotion) return undefined
     const node = bodyRef.current
-    if (!node) return
+    if (!node) return undefined
 
     const observer = new IntersectionObserver(
-      ([entry]) => setOffscreenOrHidden(!entry.isIntersecting || document.hidden),
+      ([entry]) => setOffscreen(!entry.isIntersecting),
       { threshold: 0.1 }
     )
     observer.observe(node)
 
-    const onVisibility = () => setOffscreenOrHidden(!node || document.hidden)
+    const onVisibility = () => setTabHidden(document.hidden)
     document.addEventListener('visibilitychange', onVisibility)
 
     return () => {
       observer.disconnect()
       document.removeEventListener('visibilitychange', onVisibility)
     }
-  }, [isStatic])
+  }, [reducedMotion])
 
-  const isPaused = userPaused || offscreenOrHidden
+  const isPaused = offscreen || tabHidden
 
-  const scale = isMobile ? MOBILE_SCALE : 1
-  const cx = CENTER.x * scale
-  const cy = CENTER.y * scale
-  const chipSize = isMobile ? MOBILE_CHIP_SIZE : CHIP_SIZE
-  const glyphSize = isMobile ? MOBILE_GLYPH_SIZE : GLYPH_SIZE
-  const hemisphereSize = HEMISPHERE_SIZE * scale
+  const ringConfig = useMemo(
+    () => (isMobile ? RING_CONFIG.slice(0, MOBILE_RING_COUNT) : RING_CONFIG),
+    [isMobile]
+  )
+  const outerRadius = ringConfig[ringConfig.length - 1].radius
+  const center = outerRadius + CHIP_SIZE / 2 + EDGE_PX
+  const stageWidth = center * 2
+  const scale = useFitScale(bodyRef, stageWidth, center)
 
   let toolCursor = 0
-  const rings = RING_CONFIG.map(ring => {
+  const rings = ringConfig.map(ring => {
     const chips = Array.from({ length: ring.count }, (_, i) => {
       const tool = brandedTools[toolCursor % brandedTools.length]
       toolCursor += 1
       return {
         key: `${ring.radius}-${i}`,
-        angle: chipAngle(i, ring.count),
+        angle: (360 * i) / ring.count,
         tool,
       }
     })
-    return { ...ring, radius: ring.radius * scale, chips }
+    return { ...ring, chips }
   })
 
   const uniqueToolNames = useMemo(() => Array.from(new Set(brandedTools.map(t => t.name))), [])
@@ -122,37 +134,28 @@ function SkillsOrbit({ className = '' }: SkillsOrbitProps) {
       role="group"
       aria-labelledby="skills-orbit-heading"
     >
-      <div className="orbit-panel__header">
-        <span id="skills-orbit-heading" className="orbit-panel__title">
-          Tools I work with
-        </span>
-        {!isStatic && (
-          <button
-            type="button"
-            className="orbit-panel__pause"
-            aria-pressed={userPaused}
-            onClick={() => setUserPaused(p => !p)}
-          >
-            {userPaused ? <TbPlayerPlay aria-hidden="true" size={14} /> : <TbPlayerPause aria-hidden="true" size={14} />}
-            <span>{userPaused ? 'Play' : 'Pause'}</span>
-          </button>
-        )}
-      </div>
+      <span id="skills-orbit-heading" className="orbit-panel__title">
+        Tools I work with
+      </span>
 
       <div ref={bodyRef} className="orbit-panel__body grain">
         <div
-          className={`orbit-fan ${!isStatic && isPaused ? 'orbit-fan--paused' : ''}`.trim()}
-          style={{ height: `${cy}px` }}
+          className={`orbit-fan ${!reducedMotion && isPaused ? 'orbit-fan--paused' : ''}`.trim()}
+          style={{
+            width: `${stageWidth}px`,
+            height: `${center}px`,
+            transform: `translateX(-50%) scale(${scale})`,
+          }}
         >
           <div
             className="orbit-hemisphere"
             aria-hidden="true"
             style={{
-              width: `${hemisphereSize}px`,
-              height: `${hemisphereSize / 2}px`,
-              left: `${cx - hemisphereSize / 2}px`,
-              top: `${cy - hemisphereSize / 2}px`,
-              borderRadius: `${hemisphereSize / 2}px ${hemisphereSize / 2}px 0 0`,
+              width: `${HEMISPHERE_SIZE}px`,
+              height: `${HEMISPHERE_SIZE / 2}px`,
+              left: `${center - HEMISPHERE_SIZE / 2}px`,
+              top: `${center - HEMISPHERE_SIZE / 2}px`,
+              borderRadius: `${HEMISPHERE_SIZE / 2}px ${HEMISPHERE_SIZE / 2}px 0 0`,
             }}
           />
 
@@ -164,8 +167,8 @@ function SkillsOrbit({ className = '' }: SkillsOrbitProps) {
               style={{
                 width: `${ring.radius * 2}px`,
                 height: `${ring.radius * 2}px`,
-                left: `${cx - ring.radius}px`,
-                top: `${cy - ring.radius}px`,
+                left: `${center - ring.radius}px`,
+                top: `${center - ring.radius}px`,
               }}
             />
           ))}
@@ -179,10 +182,10 @@ function SkillsOrbit({ className = '' }: SkillsOrbitProps) {
                 className="orbit-ring"
                 aria-hidden="true"
                 style={{
-                  left: `${cx}px`,
-                  top: `${cy}px`,
-                  animationName: isStatic ? undefined : ringAnimName,
-                  animationDuration: isStatic ? undefined : `${ring.duration}s`,
+                  left: `${center}px`,
+                  top: `${center}px`,
+                  animationName: reducedMotion ? undefined : ringAnimName,
+                  animationDuration: reducedMotion ? undefined : `${ring.duration}s`,
                 }}
               >
                 {ring.chips.map(chip => (
@@ -194,19 +197,19 @@ function SkillsOrbit({ className = '' }: SkillsOrbitProps) {
                     <div
                       className="orbit-chip"
                       style={{
-                        width: `${chipSize}px`,
-                        height: `${chipSize}px`,
-                        marginLeft: `${-chipSize / 2}px`,
-                        marginTop: `${-chipSize / 2}px`,
+                        width: `${CHIP_SIZE}px`,
+                        height: `${CHIP_SIZE}px`,
+                        marginLeft: `${-CHIP_SIZE / 2}px`,
+                        marginTop: `${-CHIP_SIZE / 2}px`,
                         '--base-angle': `${-chip.angle}deg`,
-                        animationName: isStatic ? undefined : chipAnimName,
-                        animationDuration: isStatic ? undefined : `${ring.duration}s`,
+                        animationName: reducedMotion ? undefined : chipAnimName,
+                        animationDuration: reducedMotion ? undefined : `${ring.duration}s`,
                       } as CSSProperties}
                     >
                       <svg
                         viewBox="0 0 24 24"
-                        width={glyphSize}
-                        height={glyphSize}
+                        width={GLYPH_SIZE}
+                        height={GLYPH_SIZE}
                         aria-hidden="true"
                       >
                         <path d={chip.tool.icon.path} fill={`#${chip.tool.icon.hex}`} />

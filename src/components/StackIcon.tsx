@@ -1,4 +1,5 @@
 import type { SimpleIcon } from 'simple-icons'
+import type { IconType } from 'react-icons'
 
 const BODY_HEX = '#E3E3E3'
 
@@ -34,26 +35,38 @@ export function isBrandColourLegible(hex: string): boolean {
 }
 
 interface StackIconProps {
-  icon: SimpleIcon
+  icon?: SimpleIcon
+  glyph?: IconType
+  size?: number
   className?: string
 }
 
-function StackIcon({ icon, className = '' }: StackIconProps) {
-  const brandHex = `#${icon.hex}`
-  const fill = isBrandColourLegible(brandHex) ? brandHex : 'var(--ink)'
+const GLYPH_COLOUR = 'var(--luna-800)'
 
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className={className}
-      width={18}
-      height={18}
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path d={icon.path} fill={fill} />
-    </svg>
-  )
+function StackIcon({ icon, glyph: Glyph, size = 16, className = '' }: StackIconProps) {
+  if (icon) {
+    const brandHex = `#${icon.hex}`
+    const fill = isBrandColourLegible(brandHex) ? brandHex : 'var(--ink)'
+
+    return (
+      <svg
+        viewBox="0 0 24 24"
+        className={className}
+        width={size}
+        height={size}
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d={icon.path} fill={fill} />
+      </svg>
+    )
+  }
+
+  if (Glyph) {
+    return <Glyph className={className} size={size} color={GLYPH_COLOUR} aria-hidden="true" focusable="false" />
+  }
+
+  return null
 }
 
 export default StackIcon

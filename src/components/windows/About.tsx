@@ -4,8 +4,6 @@ import { useWindows } from '@contexts/WindowsContext'
 import CopyEmailAction from '@components/CopyEmailAction'
 import PenUnderline from '@components/PenUnderline'
 import StackIcon from '@components/StackIcon'
-import FitToWidth from '@components/FitToWidth'
-import SkillsOrbit from '@components/desktop/SkillsOrbit'
 import { CLOSING_QUOTE } from '@components/desktop/StickyNote'
 import { profile } from '@/data/profile'
 import { stack } from '@/data/stack'
@@ -106,14 +104,12 @@ function About() {
           {stack.map((group) => (
             <div key={group.id} className="stack-group">
               <h2 className="stack-group__heading">{group.label}</h2>
-              <ul className="stack-group__list">
+              <ul className="stack-group__list" role="list">
                 {group.items.map((item) => (
                   <li key={item.name} className="stack-item">
-                    {item.icon && (
-                      <span className="stack-item__icon" aria-hidden="true">
-                        <StackIcon icon={item.icon} />
-                      </span>
-                    )}
+                    <span className="stack-item__icon" aria-hidden="true">
+                      <StackIcon icon={item.icon} glyph={item.glyph} />
+                    </span>
                     <span className="stack-item__name">{item.name}</span>
                   </li>
                 ))}
@@ -121,10 +117,6 @@ function About() {
             </div>
           ))}
         </div>
-
-        <FitToWidth>
-          <SkillsOrbit />
-        </FitToWidth>
       </div>
     </Window>
   )

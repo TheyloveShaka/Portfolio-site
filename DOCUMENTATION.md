@@ -37,7 +37,7 @@ A Windows XP Luna desktop, rebuilt as a portfolio. Vite 5, React 18, TypeScript,
 - `components/desktop/sky/`: the wallpaper sky. `CloudSky.tsx` mounts a fixed CSS gradient (`--sky-top/mid/horizon`) with a cloud canvas on it, behind `.wallpaper-layer`, which is now only the green hill cutout (`assets/wallpaper/bliss-hill.webp`, transparent sky). `world.ts` holds the simulation (4 parallax layers, drift, breathing, wind field, click gusts) with no DOM. `density.ts` composes the cloud density grid on the CPU straight from the world and the baked sprite alpha maps (no canvas raster, no `getImageData`), fading it to zero below the hill crest. `renderer.ts` turns the grid into glyphs on Canvas 2D, picking a vertical tone per cell (bright tops, blue-grey undersides) from a column light scan. `atlas.ts` bakes the glyph sheet (13 glyphs x 4 layers x 4 tones, 500 weight for the densest glyphs, a dark-blue shadow glyph under dense cells). `sprites.ts` pre-renders the cumulus alpha maps at init, `controller.ts` owns the loop (rAF only while the pointer or a gust is active, a 160ms timer otherwise), listeners, reduced motion and low-end detection. Under 768px the desk column sits below the About window (top 520px, About is capped at 458px) and the sky runs at about half the cell density, 3 layers, DPR 1.5 and a 250ms idle timer, with no side mask. The hill drop (`HILL.drop` in `config.ts`) must match `translateY` on `.wallpaper-layer`. Cloud colours are `--cloud-*` tokens. Props: `density`, `speed`, `layers`, `interaction`, `palette`, `isNight`.
 - `components/desktop/StickyNote.tsx`: the availability note and the quote, in Caveat.
 - `components/PenUnderline.tsx`: the single pen stroke used wherever Shaka speaks for himself.
-- `components/desktop/SkillsOrbit.tsx`: the skills orbit, at the bottom of About inside `FitToWidth`. It has 4 rings (18, 24, 30 and 38s), a pause control, and hover to pause. It renders static under 768px and under reduced motion.
+- `components/desktop/SkillsOrbit.tsx`: the "Tools I work with" panel, at the top of the Projects pane (220px tall, 160px under 768px). Full-circle rings (4 on desktop, 3 on phones) scaled to fit the panel by a ResizeObserver. It loops endlessly with no hover pause and no control; it pauses only when offscreen or the tab is hidden, and is static under reduced motion.
 - Styles live in `styles/decor.css` and `styles/orbit.css`.
 
 ### Case studies
@@ -80,7 +80,7 @@ All of them `require` Playwright from `../frozen-basket/node_modules`. That path
 
 - `components/wizard/Wizard.tsx` loads the clippyts agent (`public/assets/agents/Merlin.js`) after the boot finishes. It stays silent until clicked.
 - A click moves less than 4px and always opens or focuses the chat. It never toggles it closed.
-- The sprite is clamped inside the viewport, above the taskbar, after load, after a drag and on resize.
+- The sprite is clamped inside the viewport, above the taskbar, after load, after a drag and on resize. Until the user drags him he is re-homed (bottom centre under 768px, bottom right otherwise) on load, resize and orientation change.
 - `WizardChat.tsx` renders the chat in the shared window shell, docked to the viewport, with its own taskbar button and wizard icon (`assets/icons/xp/merlin.svg`).
 - `wizardBrain.ts` maps keywords to an intent. An intent returns reply text, a spoken line, an agent animation and an optional window to open.
 
@@ -92,7 +92,7 @@ All of them `require` Playwright from `../frozen-basket/node_modules`. That path
 | About (the master copy is verbatim, do not edit it without Shaka) | `src/components/windows/About.tsx` |
 | Email, booking link, socials | `src/data/profile.ts` |
 | Case studies | `src/data/caseStudies.ts` |
-| Stack groups and brand icons (About list and orbit) | `src/data/stack.ts` |
+| Stack groups, brand icons and react-icons glyphs (About chips and orbit) | `src/data/stack.ts` |
 | Hire Me, My Approach.txt | `src/components/windows/HireMe.tsx`, `Approach.tsx` |
 | Sticky note, photo caption | `src/components/desktop/StickyNote.tsx`, `Polaroids.tsx` |
 | Merlin's replies | `src/components/wizard/wizardBrain.ts` (first message in `WizardChat.tsx`) |

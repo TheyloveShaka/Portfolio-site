@@ -28,10 +28,29 @@ import {
   siVite,
 } from 'simple-icons'
 import type { SimpleIcon } from 'simple-icons'
+import type { IconType } from 'react-icons'
+import {
+  TbApi,
+  TbBolt,
+  TbBuildingArch,
+  TbClipboardText,
+  TbDatabase,
+  TbDatabaseSearch,
+  TbFileSearch,
+  TbFileText,
+  TbHierarchy2,
+  TbListCheck,
+  TbMasksTheater,
+  TbMessages,
+  TbPaw,
+  TbPlugConnected,
+  TbTerminal2,
+} from 'react-icons/tb'
 
 export interface StackItem {
   name: string
   icon?: SimpleIcon
+  glyph?: IconType
 }
 
 export interface StackGroup {
@@ -49,7 +68,7 @@ export const stack: StackGroup[] = [
       { name: 'JavaScript', icon: siJavascript },
       { name: 'Python', icon: siPython },
       { name: 'Java', icon: siOpenjdk },
-      { name: 'SQL' },
+      { name: 'SQL', glyph: TbDatabase },
       { name: 'HTML5', icon: siHtml5 },
       { name: 'CSS3', icon: siCss },
     ],
@@ -67,7 +86,7 @@ export const stack: StackGroup[] = [
       { name: 'React Router', icon: siReactrouter },
       { name: 'Preact', icon: siPreact },
       { name: 'D3.js', icon: siD3 },
-      { name: 'Zustand' },
+      { name: 'Zustand', glyph: TbPaw },
     ],
   },
   {
@@ -79,8 +98,8 @@ export const stack: StackGroup[] = [
       { name: 'Supabase', icon: siSupabase },
       { name: 'PostgreSQL', icon: siPostgresql },
       { name: 'MongoDB', icon: siMongodb },
-      { name: 'SQL' },
-      { name: 'REST APIs' },
+      { name: 'SQL', glyph: TbDatabase },
+      { name: 'REST APIs', glyph: TbApi },
     ],
   },
   {
@@ -90,12 +109,12 @@ export const stack: StackGroup[] = [
       { name: 'Claude', icon: siClaude },
       { name: 'GitHub Copilot', icon: siGithubcopilot },
       { name: 'Gemini', icon: siGooglegemini },
-      { name: 'Groq' },
-      { name: 'RAG' },
-      { name: 'LLM Integration' },
-      { name: 'Prompt Engineering' },
-      { name: 'Multi-Agent Systems' },
-      { name: 'Vector Databases' },
+      { name: 'Groq', glyph: TbBolt },
+      { name: 'RAG', glyph: TbFileSearch },
+      { name: 'LLM Integration', glyph: TbPlugConnected },
+      { name: 'Prompt Engineering', glyph: TbTerminal2 },
+      { name: 'Multi-Agent Systems', glyph: TbHierarchy2 },
+      { name: 'Vector Databases', glyph: TbDatabaseSearch },
     ],
   },
   {
@@ -106,24 +125,26 @@ export const stack: StackGroup[] = [
       { name: 'GitHub', icon: siGithub },
       { name: 'Docker', icon: siDocker },
       { name: 'Vercel', icon: siVercel },
-      { name: 'Playwright' },
+      { name: 'Playwright', glyph: TbMasksTheater },
     ],
   },
   {
     id: 'leadership',
     label: 'Leadership',
     items: [
-      { name: 'Project planning and delegation' },
-      { name: 'Requirements and specs' },
-      { name: 'Client communication' },
-      { name: 'Technical documentation' },
+      { name: 'Project planning and delegation', glyph: TbListCheck },
+      { name: 'Requirements and specs', glyph: TbClipboardText },
+      { name: 'Client communication', glyph: TbMessages },
+      { name: 'Technical documentation', glyph: TbFileText },
     ],
   },
   {
     id: 'standards',
     label: 'Standards',
-    items: [{ name: 'TOGAF 10' }],
+    items: [{ name: 'TOGAF 10', glyph: TbBuildingArch }],
   },
 ]
 
-export const brandedTools = stack.flatMap(group => group.items.filter((item): item is Required<StackItem> => Boolean(item.icon)))
+export type BrandedTool = StackItem & { icon: SimpleIcon }
+
+export const brandedTools = stack.flatMap(group => group.items.filter((item): item is BrandedTool => Boolean(item.icon)))

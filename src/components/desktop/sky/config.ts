@@ -49,7 +49,7 @@ export const ALPHA_MIN = 30
 export const DENSITY_OVERSAMPLE = 2
 export const COMPACT_BELOW = 768
 export const CELL_DESKTOP: CellSize = { w: 8, h: 13 }
-export const CELL_COMPACT: CellSize = { w: 11, h: 18 }
+export const CELL_COMPACT: CellSize = { w: 6, h: 10 }
 
 export const ATLAS_BUCKETS = 4
 export const TONES = 4
@@ -122,9 +122,9 @@ export const cellFor = (width: number, quality: Quality): CellSize => {
 export const resolveQuality = (requestedLayers?: number): Quality => {
   if (window.innerWidth < COMPACT_BELOW) {
     return {
-      layers: clamp(Math.round(requestedLayers ?? 3), 1, 3),
+      layers: clamp(Math.round(requestedLayers ?? 2), 1, 3),
       spritesPerLayer: 2,
-      countScale: 0.7,
+      countScale: 0.8,
       maxDpr: 1.5,
       cellScale: 1,
       idleMs: IDLE_MS.compact,

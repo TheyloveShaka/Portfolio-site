@@ -216,6 +216,7 @@
 
 @media (max-width: 767px) {
   .polaroid {
+    --pz: 1.2;
     width: calc(110px * var(--pz));
     min-height: calc(132px * var(--pz));
     padding: calc(var(--sp-2) * var(--pz)) calc(var(--sp-2) * var(--pz)) 0;
@@ -507,11 +508,3 @@
   }
 }
 
-.fit-width {
-  width: 100%;
-}
-
-.fit-width__inner {
-  width: max-content;
-  transform-origin: top left;
-}

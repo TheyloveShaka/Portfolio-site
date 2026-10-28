@@ -3,6 +3,7 @@ import { TbBrandGithub, TbExternalLink } from 'react-icons/tb'
 import Window from './Window'
 import CaseStudyMedia from '@components/CaseStudyMedia'
 import ConceptBadge from '@components/ConceptBadge'
+import SkillsOrbit from '@components/desktop/SkillsOrbit'
 import { useWindows } from '@contexts/WindowsContext'
 import { caseStudies } from '@/data/caseStudies'
 
@@ -37,6 +38,7 @@ function CaseStudiesFolder() {
           Portfolio / Projects
         </div>
         <div className="explorer-pane">
+          <SkillsOrbit />
           <ul className="case-tile-grid">
             {caseStudies.map((study) => {
               const evidence = study.metrics

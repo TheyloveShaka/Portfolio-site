@@ -87,10 +87,14 @@
 
 @media (max-width: 767px) {
   .desk-column {
-    top: 520px;
-    right: 12px;
+    top: var(--sp-6);
+    right: var(--sp-3);
     width: 170px;
     gap: var(--sp-3);
+  }
+
+  .gh-card[hidden] {
+    display: none;
   }
 
   .gh-card__body {

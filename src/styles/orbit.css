@@ -1,68 +1,34 @@
 .orbit-panel {
-  width: 640px;
-  max-width: 100%;
+  position: relative;
+  width: 100%;
+  height: 220px;
+  margin: 0 0 var(--sp-4);
   background: var(--n-200);
+  border: 1px solid var(--n-400);
+  border-radius: var(--radius-control);
   box-shadow: var(--bevel-sunken);
-  border-radius: var(--radius-0);
   overflow: hidden;
-}
-
-.orbit-panel__header {
-  height: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 var(--sp-2) 0 var(--sp-3);
-  background: var(--xp-header-strip);
-  box-shadow: var(--bevel-raised);
 }
 
 .orbit-panel__title {
+  position: absolute;
+  top: var(--sp-1);
+  left: var(--sp-3);
+  z-index: 1;
+  padding: 0 var(--sp-2);
+  background: var(--xp-header-strip);
+  box-shadow: var(--bevel-raised);
   font-family: var(--font-ui);
   font-weight: var(--fw-bold);
   font-size: var(--fs-chrome);
+  line-height: var(--lh-chrome);
   color: var(--ink);
-}
-
-.orbit-panel__pause {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-1);
-  height: 22px;
-  padding: 0 var(--sp-2);
-  background: var(--xp-btn-face);
-  border: 1px solid var(--xp-btn-border);
-  border-radius: var(--radius-control);
-  font-family: var(--font-ui);
-  font-weight: var(--fw-semibold);
-  font-size: var(--fs-meta);
-  color: var(--ink);
-  cursor: pointer;
-}
-
-.orbit-panel__pause::before {
-  content: '';
-  position: absolute;
-  inset: -11px -6px;
-}
-
-.orbit-panel__pause:hover {
-  box-shadow: var(--shadow-hover-glow);
-}
-
-.orbit-panel__pause:active {
-  background: var(--xp-btn-face-pressed);
-  box-shadow: var(--shadow-press-neutral);
-}
-
-.orbit-panel__body {
-  position: relative;
-  height: 334px;
-  overflow: hidden;
 }
 
 .orbit-panel__body.grain {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
   background-color: var(--n-200);
 }
 
@@ -83,8 +49,10 @@
 }
 
 .orbit-fan {
-  position: relative;
-  width: 100%;
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform-origin: 50% 100%;
   overflow: hidden;
   --orbit-play: running;
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 85%, transparent 100%);
@@ -93,12 +61,6 @@
 
 .orbit-fan.orbit-fan--paused {
   --orbit-play: paused;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .orbit-fan:hover {
-    --orbit-play: paused;
-  }
 }
 
 .orbit-ring {
@@ -159,9 +121,6 @@
 
 @media (max-width: 767px) {
   .orbit-panel {
-    width: 343px;
-  }
-  .orbit-panel__body {
-    height: 184px;
+    height: 160px;
   }
 }

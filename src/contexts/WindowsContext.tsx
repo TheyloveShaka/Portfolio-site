@@ -32,8 +32,6 @@ interface WindowsContextType {
   resumeWindow: WindowProps;
   openOrFocusWindow: (windowKey: WindowKey) => void;
   closeWindow: (windowKey: WindowKey) => void;
-  updateIconPosition: (windowKey: WindowKey, position: IconCoordinates) => void;
-  isPositionFree: (position: IconCoordinates) => boolean;
   windowPositions: WindowPositions;
   setWindowPosition: (windowKey: WindowKey, position: WindowDocumentPosition) => void;
   isWindowFocused: (windowKey: WindowKey) => boolean;
@@ -59,15 +57,6 @@ export const WindowsProvider = ({ children }: WindowsProviderProps) => {
   const [iconPositions, setIconPositions] = useState<IconPositions>(defaultIconPositions)
   const [windowPositions, setWindowPositions] = useState<WindowPositions>({})
   const [selectedCaseStudyId, setSelectedCaseStudyId] = useState<string | null>(null)
-
-  const isPositionFree = (position: IconCoordinates): boolean => {
-    for (const key in iconPositions) {
-      if (iconPositions[key as WindowKey].gridColumnStart === position.gridColumnStart && iconPositions[key as WindowKey].gridRowStart === position.gridRowStart) {
-        return false
-      }
-    }
-    return true
-  }
 
   const openOrFocusWindow = (windowKey: WindowKey) => {
     const wasAlreadyOpen = openWindowsQueue.includes(windowKey)
@@ -98,16 +87,6 @@ export const WindowsProvider = ({ children }: WindowsProviderProps) => {
 
   const isWindowFocused = (windowKey: WindowKey): boolean =>
     openWindowsQueue.length > 0 && openWindowsQueue[openWindowsQueue.length - 1] === windowKey
-
-  const updateIconPosition = (windowKey: WindowKey, position: IconCoordinates) => {
-    if (position.gridColumnStart < 1 || position.gridRowStart < 1) {
-      return
-    }
-    setIconPositions(prevPositions => ({
-      ...prevPositions,
-      [windowKey]: position
-    }))
-  }
 
   const closeWindow = (windowKey: WindowKey) => {
     setOpenWindowsQueue(prevWindows => prevWindows.filter(key => key !== windowKey))
@@ -187,8 +166,6 @@ export const WindowsProvider = ({ children }: WindowsProviderProps) => {
         caseStudyWindow: windows.caseStudy,
         openOrFocusWindow,
         closeWindow,
-        updateIconPosition,
-        isPositionFree,
         windowPositions,
         setWindowPosition,
         isWindowFocused,

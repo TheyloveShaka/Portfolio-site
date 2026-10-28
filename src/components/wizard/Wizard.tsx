@@ -79,6 +79,8 @@ const merlinSparklePosition = () => ({
 type MerlinLifecycle = 'idle' | 'opening' | 'open' | 'closing'
 
 const CLICK_DISTANCE_THRESHOLD_PX = 4
+const DRAG_MOVED_THRESHOLD_PX = 12
+const REHOME_SETTLE_MS = 400
 const IDLE_MIN_MS = 25000
 const IDLE_SPREAD_MS = 20000
 
@@ -115,6 +117,8 @@ const Wizard = () => {
   const skipFirstLifecycleSyncRef = useRef(true)
   const mouseDownPointRef = useRef<{ x: number; y: number } | null>(null)
   const chatOpenRef = useRef(false)
+  const userDraggedRef = useRef(false)
+  const placedRef = useRef<{ x: number; y: number } | null>(null)
   const idleTimerRef = useRef<number>()
   const openOrFocusWindowRef = useRef(openOrFocusWindow)
   useEffect(() => {
@@ -172,6 +176,9 @@ const Wizard = () => {
     let clickHandler: ((e: MouseEvent) => void) | undefined
     let dblClickGuard: ((e: MouseEvent) => void) | undefined
     let settle: (() => void) | undefined
+    let onPointerEnd: (() => void) | undefined
+    let onViewportChange: (() => void) | undefined
+    let rehomeTimer: number | undefined
     let el: HTMLElement | null = null
 
     clippy.load({
@@ -179,7 +186,8 @@ const Wizard = () => {
       successCb: (agent) => {
         agentRef.current = agent
         agent.show(true)
-        agent.moveTo(merlinHome().x, merlinHome().y, 0)
+        const home = merlinHome()
+        agent.moveTo(home.x, home.y, 0)
 
         setSparkle(merlinSparklePosition())
         sparkleTimeoutRef.current = window.setTimeout(() => setSparkle(null), durDevelop + staggerObject * 2)
@@ -210,11 +218,51 @@ const Wizard = () => {
           document.addEventListener('dblclick', dblClickGuard, true)
 
           const sprite = el
+          const placeAt = (point: { x: number; y: number }) => {
+            sprite.style.left = `${point.x}px`
+            sprite.style.top = `${point.y}px`
+            placedRef.current = point
+          }
+          const homeSprite = () => {
+            placeAt(merlinHome())
+            if (isNarrow()) {
+              const rect = sprite.getBoundingClientRect()
+              if (rect.width) {
+                const centreError = window.innerWidth / 2 - (rect.left + rect.width / 2)
+                placeAt({ x: parseFloat(sprite.style.left) + centreError, y: parseFloat(sprite.style.top) })
+              }
+            }
+            clampSprite(sprite)
+            const rect = sprite.getBoundingClientRect()
+            placedRef.current = { x: rect.left, y: rect.top }
+          }
+          const rehome = () => {
+            if (userDraggedRef.current) {
+              clampSprite(sprite)
+              return
+            }
+            homeSprite()
+          }
+          const noteDrag = () => {
+            const placed = placedRef.current
+            if (!placed || userDraggedRef.current) return
+            const rect = sprite.getBoundingClientRect()
+            const moved = Math.hypot(rect.left - placed.x, rect.top - placed.y)
+            if (moved > DRAG_MOVED_THRESHOLD_PX) userDraggedRef.current = true
+          }
+          homeSprite()
           settle = () => window.requestAnimationFrame(() => clampSprite(sprite))
+          onPointerEnd = () => window.requestAnimationFrame(() => {
+            noteDrag()
+            clampSprite(sprite)
+          })
+          onViewportChange = () => window.requestAnimationFrame(rehome)
           settle()
-          window.addEventListener('resize', settle)
-          window.addEventListener('mouseup', settle)
-          window.addEventListener('touchend', settle)
+          rehomeTimer = window.setTimeout(rehome, REHOME_SETTLE_MS)
+          window.addEventListener('resize', onViewportChange)
+          window.addEventListener('orientationchange', onViewportChange)
+          window.addEventListener('mouseup', onPointerEnd)
+          window.addEventListener('touchend', onPointerEnd)
         }
       },
       failCb: (error) => {
@@ -228,10 +276,14 @@ const Wizard = () => {
     return () => {
       if (sparkleTimeoutRef.current) window.clearTimeout(sparkleTimeoutRef.current)
       window.removeEventListener(MERLIN_EVENT, handleMerlinEvent)
-      if (settle) {
-        window.removeEventListener('resize', settle)
-        window.removeEventListener('mouseup', settle)
-        window.removeEventListener('touchend', settle)
+      if (rehomeTimer !== undefined) window.clearTimeout(rehomeTimer)
+      if (onViewportChange) {
+        window.removeEventListener('resize', onViewportChange)
+        window.removeEventListener('orientationchange', onViewportChange)
+      }
+      if (onPointerEnd) {
+        window.removeEventListener('mouseup', onPointerEnd)
+        window.removeEventListener('touchend', onPointerEnd)
       }
       if (el) {
         if (mouseDownHandler) el.removeEventListener('mousedown', mouseDownHandler)

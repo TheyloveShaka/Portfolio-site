@@ -14,10 +14,16 @@ function DeskColumn() {
   const fit = useCallback(() => {
     const el = columnRef.current
     if (!el) return
+    const card = el.querySelector<HTMLElement>('.gh-card')
     if (window.innerWidth < DESKTOP_MIN_WIDTH) {
       el.style.setProperty('--desk-scale', '1')
+      if (card) {
+        card.hidden = false
+        card.hidden = el.offsetTop + el.offsetHeight > window.innerHeight - MERLIN_RESERVE_PX
+      }
       return
     }
+    if (card) card.hidden = false
     const natural = el.offsetHeight
     if (!natural) return
     const available = window.innerHeight - el.offsetTop - MERLIN_RESERVE_PX
