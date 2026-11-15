@@ -1,4 +1,5 @@
 # Shaka's Portfolio
+**Live:** https://shakas-portfolio.vercel.app
 
 An interactive, Windows XP styled portfolio for **Shaka Nathan K**, developer, AI engineer and project lead based in Kampala, Uganda. A short typed boot hands over to a scrolling XP desktop: About opens on arrival, case studies live in an Explorer folder with silent walkthrough videos, and Merlin waits in the corner until you click him.
 
