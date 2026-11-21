@@ -1,4 +1,4 @@
-import avatar from '@assets/photos/shaka-avatar.webp'
+import portrait from '@assets/photos/shaka-hackathon.webp'
 import Window from './Window'
 import { useWindows } from '@contexts/WindowsContext'
 import CopyEmailAction from '@components/CopyEmailAction'
@@ -23,15 +23,17 @@ const STORY_PARAGRAPHS = [
 
 function KagaSystemsLink() {
   return (
-    <a className="kaga-chip" href={KAGA_SYSTEMS_URL} target="_blank" rel="noopener noreferrer">
-      <svg className="kaga-chip__mark" viewBox="0 0 40 32" aria-hidden="true" focusable="false">
-        <g fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="square" strokeLinejoin="miter">
-          <path d="M9.5 4.5H5.5V13.5H2.5V18.5H5.5V27.5H9.5" />
-          <path d="M30.5 4.5H34.5V13.5H37.5V18.5H34.5V27.5H30.5" />
-          <path d="M14.5 6V26" />
-          <path d="M25.5 6 15.5 16 25.5 26" />
-        </g>
-      </svg>
+    <a className="kaga-link" href={KAGA_SYSTEMS_URL} target="_blank" rel="noopener noreferrer">
+      <span className="kaga-link__badge" aria-hidden="true">
+        <svg viewBox="0 0 40 32" focusable="false">
+          <g fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="square" strokeLinejoin="miter">
+            <path d="M9.5 4.5H5.5V13.5H2.5V18.5H5.5V27.5H9.5" />
+            <path d="M30.5 4.5H34.5V13.5H37.5V18.5H34.5V27.5H30.5" />
+            <path d="M14.5 6V26" />
+            <path d="M25.5 6 15.5 16 25.5 26" />
+          </g>
+        </svg>
+      </span>
       Kaga Systems
     </a>
   )
@@ -43,23 +45,23 @@ function About() {
   return (
     <Window window={aboutWindow} mobileMaxHeight="458px">
       <div className="about-window-content p-6 flex flex-col gap-6">
-        <div className="flex flex-col gap-3">
-          <div className="about-heading-row">
-            <h1 className="font-display font-bold text-display-xl text-ink m-0">
-              Shaka Nathan K
-            </h1>
+        <div className="about-intro">
+          <div className="about-portrait">
             <img
-              src={avatar}
-              alt="Shaka Nathan K"
-              width={88}
-              height={88}
-              className="about-avatar"
+              src={portrait}
+              alt="Shaka at the UCC Testbed Hackathon in Kampala"
+              width={520}
+              height={768}
             />
           </div>
+          <div className="about-intro__text">
+          <h1 className="font-display font-bold text-display-xl text-ink m-0">
+            Shaka Nathan K
+          </h1>
           <p className="font-display font-medium text-display-l text-ink-2 m-0">
             Developer · AI Engineer · Project Lead
           </p>
-          <p className="font-ui text-body text-ink-2 m-0 flex items-center gap-2">
+          <p className="font-ui text-body text-ink-2 m-0 flex flex-wrap items-center gap-x-2">
             <span
               aria-hidden="true"
               className="inline-block"
@@ -93,6 +95,7 @@ function About() {
           </div>
 
           <CopyEmailAction email={profile.email} />
+          </div>
         </div>
 
         <div className="flex flex-col gap-4" style={{ maxWidth: 'var(--measure)' }}>
