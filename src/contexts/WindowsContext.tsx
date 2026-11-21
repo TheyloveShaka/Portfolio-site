@@ -5,6 +5,7 @@ import info from '@assets/icons/xp/about.png'
 import cmd from '@assets/icons/xp/cmd.png'
 import mydocs from '@assets/icons/xp/mydocs.png'
 import textDoc from '@assets/icons/xp/text-doc.png'
+import resumeIcon from '@assets/icons/xp/resume.png'
 import merlinIcon from '@assets/icons/xp/merlin.svg'
 import { WindowProps } from '@/types'
 import {
@@ -17,7 +18,7 @@ import {
   WindowPositions,
 } from '@/utils/zenFs'
 
-export type WindowKey = 'terminal2' | 'about' | 'deviceInfo' | 'caseStudies' | 'hireMe' | 'approach' | 'caseStudy' | 'start' | 'resume' | 'merlinChat'
+export type WindowKey = 'terminal2' | 'about' | 'deviceInfo' | 'caseStudies' | 'hireMe' | 'caseStudy' | 'start' | 'resume' | 'merlinChat'
 
 interface WindowsContextType {
   windows: Record<WindowKey, WindowProps>;
@@ -27,7 +28,6 @@ interface WindowsContextType {
   deviceInfoWindow: WindowProps;
   caseStudiesWindow: WindowProps;
   hireMeWindow: WindowProps;
-  approachWindow: WindowProps;
   caseStudyWindow: WindowProps;
   resumeWindow: WindowProps;
   openOrFocusWindow: (windowKey: WindowKey) => void;
@@ -116,9 +116,8 @@ export const WindowsProvider = ({ children }: WindowsProviderProps) => {
     deviceInfo: createWindowConfig('deviceInfo', mycomp, 'Device'),
     caseStudies: createWindowConfig('caseStudies', mydocs, 'Projects'),
     hireMe: createWindowConfig('hireMe', textDoc, 'Hire Me'),
-    approach: createWindowConfig('approach', textDoc, 'My Approach.txt'),
     caseStudy: createWindowConfig('caseStudy', mydocs, 'Project'),
-    resume: createWindowConfig('resume', textDoc, 'Resume'),
+    resume: createWindowConfig('resume', resumeIcon, 'My CV.pdf'),
     merlinChat: createWindowConfig('merlinChat', merlinIcon, 'Ask Merlin'),
   }
 
@@ -162,7 +161,6 @@ export const WindowsProvider = ({ children }: WindowsProviderProps) => {
         deviceInfoWindow: windows.deviceInfo,
         caseStudiesWindow: windows.caseStudies,
         hireMeWindow: windows.hireMe,
-        approachWindow: windows.approach,
         caseStudyWindow: windows.caseStudy,
         openOrFocusWindow,
         closeWindow,

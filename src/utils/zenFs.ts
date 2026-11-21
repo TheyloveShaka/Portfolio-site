@@ -5,17 +5,16 @@ import { IconPositions, WindowKey } from '@contexts/WindowsContext'
 export const defaultIconPositions: IconPositions = {
   about: { gridColumnStart: 1, gridRowStart: 1 },
   caseStudies: { gridColumnStart: 1, gridRowStart: 2 },
-  hireMe: { gridColumnStart: 1, gridRowStart: 3 },
-  approach: { gridColumnStart: 1, gridRowStart: 4 },
-  terminal2: { gridColumnStart: 1, gridRowStart: 5 },
-  deviceInfo: { gridColumnStart: 1, gridRowStart: 6 },
-  resume: { gridColumnStart: 1, gridRowStart: 7 },
+  resume: { gridColumnStart: 1, gridRowStart: 3 },
+  terminal2: { gridColumnStart: 1, gridRowStart: 4 },
+  deviceInfo: { gridColumnStart: 1, gridRowStart: 5 },
+  hireMe: { gridColumnStart: 99, gridRowStart: 99 },
   start: { gridColumnStart: 99, gridRowStart: 99 },
   caseStudy: { gridColumnStart: 99, gridRowStart: 99 },
   merlinChat: { gridColumnStart: 99, gridRowStart: 99 },
 }
 
-const ICON_POSITIONS_KEY = '/iconPositions.v7.json'
+const ICON_POSITIONS_KEY = '/iconPositions.v8.json'
 
 const MAX_GRID_INDEX = 20
 

@@ -498,3 +498,41 @@ html :focus-visible {
     transform: none;
   }
 }
+
+.window-resize {
+  position: absolute;
+  z-index: 2;
+  touch-action: none;
+}
+
+.window-resize--e {
+  top: var(--title-bar-h);
+  right: -4px;
+  bottom: var(--sp-4);
+  width: 8px;
+  cursor: ew-resize;
+}
+
+.window-resize--s {
+  left: 0;
+  right: var(--sp-4);
+  bottom: -4px;
+  height: 8px;
+  cursor: ns-resize;
+}
+
+.window-resize--se {
+  right: 0;
+  bottom: 0;
+  width: var(--sp-4);
+  height: var(--sp-4);
+  cursor: nwse-resize;
+  background:
+    linear-gradient(135deg, transparent 0 55%, var(--n-400) 55% 62%, transparent 62% 72%, var(--n-400) 72% 79%, transparent 79%);
+  opacity: 0.8;
+}
+
+.window--sized .window-body > * {
+  width: auto;
+  max-width: 100%;
+}

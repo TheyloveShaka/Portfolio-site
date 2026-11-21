@@ -15,6 +15,7 @@ export const getPrompt = (): string => {
   return `\x1b[1;92m${user}@${machine}\x1b[0m:\x1b[1;94m${path}\x1b[0m$ `
 }
 const commandList = [
+  { commands: ['fix-boot'], description: 'Fix a PC that will not boot, like I did as a kid' },
   { commands: ['echo'], description: 'Display a line of text' },
   { commands: ['clear', 'cls'], description: 'Clear the terminal screen' },
   { commands: ['help'], description: 'Display this help message' },

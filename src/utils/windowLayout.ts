@@ -75,3 +75,33 @@ export const computeMerlinDockPosition = (size: Size): DocumentPosition => {
     size,
   )
 }
+
+const readTaskbarHeight = (): number => {
+  if (typeof document === 'undefined') return 40
+  const value = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--taskbar-h'))
+  return Number.isFinite(value) ? value : 40
+}
+
+export const centerInViewport = (size: Size): DocumentPosition => {
+  const root = typeof document !== 'undefined' ? document.documentElement : null
+  const vw = root?.clientWidth || 1440
+  const vh = root?.clientHeight || 900
+  const scrollY = typeof window !== 'undefined' ? window.scrollY : 0
+  const usableHeight = vh - readTaskbarHeight()
+  return {
+    x: Math.max(0, Math.round((vw - size.width) / 2)),
+    y: scrollY + Math.max(0, Math.round((usableHeight - size.height) / 2)),
+  }
+}
+
+export const WINDOW_MIN_SIZE: Size = { width: 280, height: 180 }
+
+export const maxWindowSize = (pos: DocumentPosition): Size => {
+  const vw = typeof window !== 'undefined' ? window.innerWidth : 1440
+  const vh = typeof window !== 'undefined' ? window.innerHeight : 900
+  const scrollY = typeof window !== 'undefined' ? window.scrollY : 0
+  return {
+    width: Math.max(WINDOW_MIN_SIZE.width, vw - pos.x - 4),
+    height: Math.max(WINDOW_MIN_SIZE.height, vh - readTaskbarHeight() - (pos.y - scrollY) - 4),
+  }
+}

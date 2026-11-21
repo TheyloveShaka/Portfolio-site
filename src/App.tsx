@@ -3,7 +3,6 @@ import '@/App.css'
 import Projects from '@components/windows/Projects'
 import About from '@components/windows/About'
 import HireMe from '@components/windows/HireMe'
-import Approach from '@components/windows/Approach'
 import CaseStudyViewer from '@components/windows/CaseStudyViewer'
 import Xterm from '@/components/windows/Xterm'
 
@@ -80,7 +79,6 @@ const App = () => {
     windows.about.visibility,
     windows.caseStudies.visibility,
     windows.hireMe.visibility,
-    windows.approach.visibility,
     windows.caseStudy.visibility,
     windows.deviceInfo.visibility,
     windows.start.visibility,
@@ -89,7 +87,14 @@ const App = () => {
 
   useEffect(() => {
     if (!windows.resume.visibility) return
-    if (profile.resumeUrl) window.open(profile.resumeUrl, '_blank', 'noopener,noreferrer')
+    if (profile.resumeUrl) {
+      const link = document.createElement('a')
+      link.href = profile.resumeUrl
+      link.download = profile.resumeUrl.split('/').pop() ?? 'CV.pdf'
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+    }
     closeWindow('resume')
   }, [closeWindow, windows.resume.visibility])
 
@@ -113,7 +118,7 @@ const App = () => {
           initial={{ opacity: 0, y: 8 }}
         >
           {Object.entries(windows)
-            .filter(([key]) => key !== 'start' && key !== 'caseStudy' && key !== 'merlinChat')
+            .filter(([key]) => key !== 'start' && key !== 'caseStudy' && key !== 'merlinChat' && key !== 'hireMe')
             .filter(([key]) => key !== 'resume' || Boolean(profile.resumeUrl))
             .sort(([a], [b]) => (defaultIconPositions[a as WindowKey]?.gridRowStart ?? 99) - (defaultIconPositions[b as WindowKey]?.gridRowStart ?? 99))
             .map(([key, win]) => (
@@ -128,7 +133,6 @@ const App = () => {
         {windows.caseStudies.visibility && <Projects />}
         {windows.caseStudy.visibility && <CaseStudyViewer />}
         {windows.hireMe.visibility && <HireMe />}
-        {windows.approach.visibility && <Approach />}
         {windows.deviceInfo.visibility && <DeviceInfo />}
         {windows.start.visibility && <Start />}
         {windows.terminal2.visibility && <Xterm />}
