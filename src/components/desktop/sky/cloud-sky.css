@@ -32,19 +32,10 @@
   pointer-events: none;
   opacity: 0;
   transition: opacity var(--dur-develop) var(--ease-out);
-  -webkit-mask-image: linear-gradient(to right, transparent 0, transparent 104px, #000 200px);
-  mask-image: linear-gradient(to right, transparent 0, transparent 104px, #000 200px);
 }
 
 .cloud-sky__canvas.is-ready {
   opacity: 1;
-}
-
-@media (max-width: 767px) {
-  .cloud-sky__canvas {
-    -webkit-mask-image: none;
-    mask-image: none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -480,6 +480,11 @@ html :focus-visible {
   }
 }
 
+html[data-low-power] .global-live-grain {
+  animation: none;
+  will-change: auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .boot-screen {
     transition: none;

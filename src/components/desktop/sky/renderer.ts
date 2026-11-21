@@ -35,6 +35,7 @@ const TONE_SHIFT = 6
 const LEVEL_SHIFT = 8
 const EDGE_FLOOR = 0.22
 const EDGE_CURVE = 0.9
+const RAIL_FADE = { from: 104, to: 200, minWidth: 768 } as const
 
 export const depthByte = (bucket: number, count: number): number =>
   count <= 1 ? 255 : Math.round((bucket / (count - 1)) * 255)
@@ -59,6 +60,7 @@ export class AsciiRenderer {
   private flying = new Int32Array(0)
   private tones = new Uint8Array(0)
   private light = new Float32Array(0)
+  private colFade = new Float32Array(0)
   private overlayDirty = false
   private cols = 0
   private rows = 0
@@ -130,6 +132,12 @@ export class AsciiRenderer {
     this.flying = new Int32Array(this.cols * this.rows)
     this.tones = new Uint8Array(this.cols * this.rows)
     this.light = new Float32Array(this.cols)
+    this.colFade = new Float32Array(this.cols)
+    const fadeRail = width >= RAIL_FADE.minWidth
+    for (let i = 0; i < this.cols; i++) {
+      const x = (i + 0.5) * this.cell.w
+      this.colFade[i] = fadeRail ? Math.min(1, Math.max(0, (x - RAIL_FADE.from) / (RAIL_FADE.to - RAIL_FADE.from))) : 1
+    }
     this.overlayDirty = false
     this.field.resize(this.cols, this.rows, this.cell.w, this.cell.h, width)
     if (changed) this.dropAtlas()
@@ -178,7 +186,7 @@ export class AsciiRenderer {
     const t2 = DEBUG ? performance.now() : 0
 
     const { ox, oy } = this.field
-    const { glyphOf, alphaOf, bucketOf, dim, shown, flying, tones, light } = this
+    const { glyphOf, alphaOf, bucketOf, dim, shown, flying, tones, light, colFade } = this
     const [lit0, lit1, lit2] = LIGHT.tones
     light.fill(1)
     let drawn = 0
@@ -200,8 +208,10 @@ export class AsciiRenderer {
             flying[airborne++] = k
           } else {
             const bucket = bucketOf[data[k << 2]]
-            const level = Math.max(1, Math.round(alphaOf[a] * dim[bucket] * (LEVELS - 1)))
-            key = glyphOf[a] | (bucket << BUCKET_SHIFT) | (tone << TONE_SHIFT) | (level << LEVEL_SHIFT)
+            const fade = colFade[i]
+            const raw = alphaOf[a] * dim[bucket] * (LEVELS - 1)
+            const level = fade >= 1 ? Math.max(1, Math.round(raw)) : Math.round(raw * fade)
+            if (level > 0) key = glyphOf[a] | (bucket << BUCKET_SHIFT) | (tone << TONE_SHIFT) | (level << LEVEL_SHIFT)
           }
         } else {
           light[i] += (1 - light[i]) * LIGHT.recover
@@ -230,11 +240,13 @@ export class AsciiRenderer {
         const x = (k % cols) * cw + Math.round(dx * scale)
         const y = Math.floor(k / cols) * ch + Math.round(dy * scale)
         if (x >= width || x + cw <= 0 || y + ch > skyDev || y < 0) continue
+        const fade = colFade[Math.min(cols - 1, Math.max(0, Math.floor(x / cw)))]
+        if (fade <= 0) continue
         const a = data[(k << 2) + 3]
         const bucket = bucketOf[data[k << 2]]
         const t = Math.min(1, Math.sqrt(dx * dx + dy * dy) / I.flyRange)
         const glyph = Math.max(1, Math.round(glyphOf[a] * (1 - I.glyphFade * t)))
-        ov.globalAlpha = alphaOf[a] * dim[bucket] * (1 - I.alphaFade * t)
+        ov.globalAlpha = alphaOf[a] * dim[bucket] * (1 - I.alphaFade * t) * fade
         ov.drawImage(atlas, glyph * cw, (bucket | (tones[k] << 2)) * ch, cw, ch, x, y, cw, ch)
         drawn++
       }

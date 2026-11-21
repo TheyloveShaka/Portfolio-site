@@ -52,7 +52,7 @@ function Window({ window: win, children, mobileMaxHeight, innerScroll }: Window)
   const [measuredSize, setMeasuredSize] = useState<{ width: number; height: number } | null>(null)
   const hasPlacedRef = useRef(false)
 
-  const dragRef = useRef({ engaged: false, dx: 0, dy: 0 })
+  const dragRef = useRef({ engaged: false, dx: 0, dy: 0, origin: { x: 0, y: 0 }, pos: { x: 0, y: 0 } })
   const userMovedRef = useRef(false)
   const [centered, setCentered] = useState(false)
   const [userSize, setUserSize] = useState<Size | null>(null)
@@ -117,7 +117,8 @@ function Window({ window: win, children, mobileMaxHeight, innerScroll }: Window)
   const handleWindowMouseDown = () => openOrFocusWindow(win.elementId)
 
   const handleDragStart = () => {
-    dragRef.current = { engaged: false, dx: 0, dy: 0 }
+    const origin = windowPositions[win.elementId] ?? { x: 0, y: 0 }
+    dragRef.current = { engaged: false, dx: 0, dy: 0, origin, pos: origin }
   }
 
   const handleDrag = (_e: unknown, data: { deltaX: number; deltaY: number }) => {
@@ -132,19 +133,27 @@ function Window({ window: win, children, mobileMaxHeight, innerScroll }: Window)
       userMovedRef.current = true
     }
 
-    const base = windowPositions[win.elementId] ?? { x: 0, y: 0 }
-    const next = { x: base.x + drag.dx, y: base.y + drag.dy }
+    const next = { x: drag.origin.x + drag.dx, y: drag.origin.y + drag.dy }
     const size = measuredSize ?? { width: 0, height: 0 }
-    const clamped = isMerlinDock
+    drag.pos = isMerlinDock
       ? clampToViewport(next, size)
       : clampWindowPosition(next, size, getCanvasMetrics())
-    setWindowPosition(win.elementId, clamped)
-    drag.dx = 0
-    drag.dy = 0
+    const node = nodeRef.current
+    if (node) {
+      node.style.willChange = 'transform'
+      node.style.transform = `translate3d(${drag.pos.x - drag.origin.x}px, ${drag.pos.y - drag.origin.y}px, 0)`
+    }
   }
 
   const handleDragStop = () => {
-    dragRef.current.engaged = false
+    const drag = dragRef.current
+    const node = nodeRef.current
+    if (node) {
+      node.style.transform = ''
+      node.style.willChange = ''
+    }
+    if (drag.engaged) setWindowPosition(win.elementId, drag.pos)
+    drag.engaged = false
   }
 
   const beginResize = (edge: ResizeEdge) => (e: ReactPointerEvent<HTMLDivElement>) => {

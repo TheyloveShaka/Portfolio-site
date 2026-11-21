@@ -39,6 +39,8 @@ interface WindowsContextType {
   openCaseStudy: (caseStudyId: string) => void;
 }
 
+const SAVE_DELAY_MS = 400
+
 const WindowsContext = createContext<WindowsContextType | undefined>(undefined)
 
 interface WindowsProviderProps {
@@ -146,8 +148,9 @@ export const WindowsProvider = ({ children }: WindowsProviderProps) => {
   }, [])
 
   useEffect(() => {
-    if (Object.keys(windowPositions).length === 0) return
-    saveWindowPositions(windowPositions)
+    if (Object.keys(windowPositions).length === 0) return undefined
+    const id = window.setTimeout(() => saveWindowPositions(windowPositions), SAVE_DELAY_MS)
+    return () => window.clearTimeout(id)
   }, [windowPositions])
 
   return (

@@ -28,6 +28,7 @@ interface CloudSkyDebug {
   readonly maxJsMs: number
   readonly frames: number
   readonly awake: boolean
+  readonly level: number
   readonly timing: DrawTiming
   resetStats: () => void
 }
@@ -41,6 +42,17 @@ const REBUILD_ABOVE = 1.4
 const FRAME_MS = 1000 / 26
 const FONT_WAIT_MS = 1500
 const GLYPH_WEIGHTS = ['400', '500']
+
+const LOAD_WINDOW_MS = 1200
+const LOAD_HIGH = 0.2
+const LOAD_LOW = 0.06
+const LOAD_SEVERE = 0.5
+const CALM_WINDOWS = 3
+const FROZEN = 3
+const STRETCH = [1, 2, 4] as const
+
+const supportsLongTasks = (): boolean =>
+  typeof PerformanceObserver !== 'undefined' && (PerformanceObserver.supportedEntryTypes ?? []).includes('longtask')
 
 const whenDesktopReady = (run: () => void): (() => void) => {
   if (document.body.dataset.introDone === 'true') {
@@ -94,14 +106,58 @@ export const startCloudSky = (canvas: HTMLCanvasElement, opts: CloudSkyOptions):
   let jsTotal = 0
   let jsMax = 0
   let frames = 0
+  let level = 0
+  let calm = 0
+  let blockedMs = 0
+  let skyMs = 0
+  let loadStart = 0
+
+  const stretch = (): number => STRETCH[Math.min(level, STRETCH.length - 1)]
+
+  const resetLoad = (now: number): void => {
+    blockedMs = 0
+    skyMs = 0
+    loadStart = now
+  }
+
+  const longTasks = supportsLongTasks()
+    ? new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) blockedMs += entry.duration
+      })
+    : null
+  longTasks?.observe({ type: 'longtask' })
 
   const paintStatic = (): void => {
     world.refresh()
     renderer.draw(world, 0, false)
   }
 
+  const freeze = (): void => {
+    document.documentElement.dataset.lowPower = 'true'
+    stop()
+    renderer.field.reset()
+    paintStatic()
+  }
+
+  const assessLoad = (now: number): void => {
+    const span = now - loadStart
+    if (span < LOAD_WINDOW_MS) return
+    const load = Math.max(blockedMs, skyMs) / span
+    resetLoad(now)
+    if (load > LOAD_HIGH) {
+      calm = 0
+      level = load > LOAD_SEVERE ? FROZEN : level + 1
+      if (level >= FROZEN) freeze()
+      return
+    }
+    if (load < LOAD_LOW && level > 0 && ++calm >= CALM_WINDOWS) {
+      calm = 0
+      level--
+    }
+  }
+
   const queue = (): void => {
-    if (!alive || reduced || document.hidden) return
+    if (!alive || reduced || document.hidden || level >= FROZEN) return
     if (renderer.field.awake) {
       raf = requestAnimationFrame(tick)
       return
@@ -109,23 +165,26 @@ export const startCloudSky = (canvas: HTMLCanvasElement, opts: CloudSkyOptions):
     timer = window.setTimeout(() => {
       timer = 0
       raf = requestAnimationFrame(tick)
-    }, quality.idleMs)
+    }, quality.idleMs * stretch())
   }
 
   const tick = (now: number): void => {
     raf = 0
     const gap = now - last
-    if (gap < FRAME_MS) {
+    if (gap < FRAME_MS * stretch()) {
       raf = requestAnimationFrame(tick)
       return
     }
     last = now
     const seconds = gap / 1000
-    const t0 = import.meta.env.DEV ? performance.now() : 0
+    const t0 = performance.now()
     world.step(Math.min(seconds, WORLD_MAX_DT))
     renderer.draw(world, Math.min(seconds, MAX_DT), true)
+    const spent = performance.now() - t0
+    skyMs += spent
+    assessLoad(t0 + spent)
+    if (level >= FROZEN) return
     if (import.meta.env.DEV) {
-      const spent = performance.now() - t0
       jsTotal += spent
       jsMax = Math.max(jsMax, spent)
       frames++
@@ -134,8 +193,9 @@ export const startCloudSky = (canvas: HTMLCanvasElement, opts: CloudSkyOptions):
   }
 
   const start = (): void => {
-    if (raf || timer || reduced || document.hidden || !ready || !alive) return
+    if (raf || timer || reduced || document.hidden || !ready || !alive || level >= FROZEN) return
     last = performance.now()
+    resetLoad(last)
     raf = requestAnimationFrame(tick)
   }
 
@@ -147,7 +207,7 @@ export const startCloudSky = (canvas: HTMLCanvasElement, opts: CloudSkyOptions):
   }
 
   const wake = (): void => {
-    if (!timer) return
+    if (!timer || level >= FROZEN) return
     window.clearTimeout(timer)
     timer = 0
     raf = requestAnimationFrame(tick)
@@ -182,7 +242,7 @@ export const startCloudSky = (canvas: HTMLCanvasElement, opts: CloudSkyOptions):
     spriteScale = scale
     ready = true
     renderer.show(true)
-    if (reduced) paintStatic()
+    if (reduced || level >= FROZEN) paintStatic()
     else start()
   }
 
@@ -198,7 +258,7 @@ export const startCloudSky = (canvas: HTMLCanvasElement, opts: CloudSkyOptions):
     if (!started) return
     const ratio = world.scale / spriteScale
     if (cellChanged || ratio < REBUILD_BELOW || ratio > REBUILD_ABOVE) void build()
-    else if (reduced) paintStatic()
+    else if (reduced || level >= FROZEN) paintStatic()
   }
 
   const observer = new ResizeObserver((entries) => {
@@ -208,7 +268,7 @@ export const startCloudSky = (canvas: HTMLCanvasElement, opts: CloudSkyOptions):
   observer.observe(host)
 
   const aim = (x: number, y: number, t: number, strength: number): void => {
-    if (reduced) return
+    if (reduced || level >= FROZEN) return
     renderer.field.aim(x, y, t, strength)
     wake()
   }
@@ -219,7 +279,7 @@ export const startCloudSky = (canvas: HTMLCanvasElement, opts: CloudSkyOptions):
   }
 
   const onPointerDown = (e: PointerEvent): void => {
-    if (reduced) return
+    if (reduced || level >= FROZEN) return
     const touch = e.pointerType === 'touch'
     renderer.field.shock(e.clientX, e.clientY, touch ? INTERACTION.touch * opts.interaction : opts.interaction)
     wake()
@@ -278,6 +338,9 @@ export const startCloudSky = (canvas: HTMLCanvasElement, opts: CloudSkyOptions):
       get awake() {
         return renderer.field.awake
       },
+      get level() {
+        return level
+      },
       get timing() {
         return renderer.timing
       },
@@ -297,6 +360,7 @@ export const startCloudSky = (canvas: HTMLCanvasElement, opts: CloudSkyOptions):
     cancelWait()
     stop()
     observer.disconnect()
+    longTasks?.disconnect()
     document.removeEventListener('visibilitychange', onVisibility)
     reducedQuery.removeEventListener('change', onReducedChange)
     window.removeEventListener('pointermove', onPointerMove)
